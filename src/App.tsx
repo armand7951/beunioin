@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Header from "./components/Header";
 import Hero from "./components/Hero";
 import MascotSelector from "./components/MascotSelector";
@@ -15,8 +15,29 @@ export default function App() {
   const [activeSection, setActiveSection] = useState("home");
   const [selectedMascotId, setSelectedMascotId] = useState("animal");
 
+  useEffect(() => {
+    // Read and parse URL hash routing
+    const handleHashChange = () => {
+      const hash = window.location.hash.replace("#", "");
+      const validSections = ["home", "mascots", "welfare", "shield", "quiz", "chat", "report"];
+      if (validSections.includes(hash)) {
+        setActiveSection(hash);
+      } else {
+        setActiveSection("home");
+      }
+    };
+
+    // Run once on load
+    handleHashChange();
+
+    window.addEventListener("hashchange", handleHashChange);
+    return () => {
+      window.removeEventListener("hashchange", handleHashChange);
+    };
+  }, []);
+
   const handleNavigation = (sectionId: string) => {
-    setActiveSection(sectionId);
+    window.location.hash = sectionId;
     // Smooth scroll to top when switching pages
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
@@ -24,7 +45,7 @@ export default function App() {
   const handleSelectMascotForChat = (mascotId: string) => {
     setSelectedMascotId(mascotId);
     // Programmatically navigate to the chat page
-    setActiveSection("chat");
+    window.location.hash = "chat";
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
