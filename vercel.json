@@ -1,0 +1,14 @@
+{
+  "rewrites": [
+    { "source": "/mascots", "destination": "/index.html" },
+    { "source": "/welfare", "destination": "/index.html" },
+    { "source": "/shield", "destination": "/index.html" },
+    { "source": "/quiz", "destination": "/index.html" },
+    { "source": "/chat", "destination": "/index.html" },
+    { "source": "/report", "destination": "/index.html" },
+    { "source": "/admin", "destination": "/index.html" },
+    { "source": "/auth", "destination": "/index.html" },
+    { "source": "/member", "destination": "/index.html" },
+    { "source": "/reset-password", "destination": "/index.html" }
+  ]
+}
