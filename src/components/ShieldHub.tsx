@@ -358,27 +358,23 @@ export default function ShieldHub() {
                       </div>
                     </div>
 
-                    {/* Simulation Application Form Box */}
+                    {/* Member registration entry */}
                     <div className="p-6 bg-amber-400 rounded-3xl border-3 border-[#1e293b] bubbly-shadow flex flex-col sm:flex-row items-center justify-between gap-6">
                       <div className="text-left">
-                        <h5 className="font-black text-lg text-[#1e293b] mb-1">🌟 立即在線上提交「加入意願申請書」</h5>
+                        <h5 className="font-black text-lg text-[#1e293b] mb-1">🌟 立即成為正式會員</h5>
                         <p className="text-xs font-bold text-[#1e293b]/90">
-                          填寫完畢後，工會秘書處將有專人於 3 個工作天內，透過 Email/LINE 與您聯絡確認會籍事宜！
+                          填寫會員資料並完成 Email 驗證後，會員資格立即生效。
                         </p>
                       </div>
                       <button
                         onClick={() => {
-                          const name = prompt("請輸入您的姓名：");
-                          if (!name) return;
-                          const email = prompt("請輸入您的聯絡 Email：");
-                          if (!email) return;
-                          const role = prompt("請輸入您的工作/志工領域（例如：動保救援/植樹志工/生態調查員）：");
-                          if (!role) return;
-                          alert(`🎉 恭喜 ${name} 夥伴！您已成功遞交台灣環境生態護育產業工會（BeUnion）入會申請意願書！\n\n我們將於 3 個工作天內寄送繳費及線上表單確認信至：${email}\n感謝您與工會同行，一起守護台灣環境生態！🐾🌱💧`);
+                          window.history.pushState({}, "", "/auth");
+                          window.dispatchEvent(new Event("pushstate_change"));
+                          window.scrollTo({ top: 0, behavior: "smooth" });
                         }}
                         className="px-6 py-3 bg-white hover:bg-amber-100 text-[#1e293b] font-black rounded-2xl border-3 border-[#1e293b] bubbly-shadow text-sm shrink-0 flex items-center gap-1 cursor-pointer"
                       >
-                        <span>填寫入會意願 📝</span>
+                        <span>立即註冊會員 📝</span>
                         <ArrowRight className="w-4 h-4 stroke-[3]" />
                       </button>
                     </div>

@@ -10,6 +10,9 @@ import ReportForm from "./components/ReportForm";
 import NewsBoard from "./components/NewsBoard";
 import EventCalendar from "./components/EventCalendar";
 import AdminDashboard from "./components/AdminDashboard";
+import AuthPage from "./components/AuthPage";
+import MemberCenter from "./components/MemberCenter";
+import ResetPassword from "./components/ResetPassword";
 import Footer from "./components/Footer";
 import { Shield, Sparkles, Heart } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
@@ -23,7 +26,7 @@ export default function App() {
     const handleLocationChange = () => {
       const pathName = window.location.pathname;
       const path = pathName.replace(/^\/+|\/+$/g, "");
-      const validSections = ["home", "mascots", "welfare", "shield", "quiz", "chat", "report", "admin"];
+      const validSections = ["home", "mascots", "welfare", "shield", "quiz", "chat", "report", "admin", "auth", "member", "reset-password"];
       if (validSections.includes(path)) {
         setActiveSection(path);
       } else if (path === "") {
@@ -184,6 +187,18 @@ export default function App() {
 
             {activeSection === "admin" && (
               <AdminDashboard />
+            )}
+
+            {activeSection === "auth" && (
+              <AuthPage onNavigate={handleNavigation} />
+            )}
+
+            {activeSection === "member" && (
+              <MemberCenter onNavigate={handleNavigation} />
+            )}
+
+            {activeSection === "reset-password" && (
+              <ResetPassword onNavigate={handleNavigation} />
             )}
           </motion.div>
         </AnimatePresence>

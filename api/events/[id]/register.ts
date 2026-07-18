@@ -3,11 +3,13 @@ import {
   validateRegistrationPayload,
 } from "../../lib/registration.js";
 import { getSupabaseAdmin } from "../../lib/supabase.js";
+import { getBearerToken, getVerifiedUser } from "../../lib/auth.js";
 
 interface ApiRequest {
   method?: string;
   query: { id?: string | string[] };
   body?: unknown;
+  headers?: Record<string, string | string[] | undefined>;
 }
 
 interface ApiResponse {
@@ -35,6 +37,12 @@ export default async function handler(req: ApiRequest, res: ApiResponse) {
   const { name, email, phone, volunteerType, notes } = validated.value;
 
   try {
+    const hasBearerToken = Boolean(getBearerToken(req.headers));
+    const verifiedUser = await getVerifiedUser(req.headers);
+    if (hasBearerToken && !verifiedUser) {
+      return res.status(401).json({ error: "登入狀態已失效，請重新登入。" });
+    }
+
     const { data, error } = await getSupabaseAdmin().rpc(
       "register_for_event",
       {
@@ -44,6 +52,7 @@ export default async function handler(req: ApiRequest, res: ApiResponse) {
         p_phone: phone,
         p_volunteer_type: volunteerType,
         p_notes: notes,
+        p_user_id: verifiedUser?.id ?? null,
       },
     );
 

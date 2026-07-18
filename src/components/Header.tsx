@@ -1,6 +1,7 @@
 import React from "react";
 import { Sparkles, Heart } from "lucide-react";
 import { motion } from "motion/react";
+import { useAuth } from "../contexts/AuthContext";
 
 interface HeaderProps {
   activeSection: string;
@@ -8,6 +9,7 @@ interface HeaderProps {
 }
 
 export default function Header({ activeSection, onNavigate }: HeaderProps) {
+  const { user, signOut, isAdmin } = useAuth();
   const menuItems = [
     { id: "home", label: "守護首頁", icon: "🏡" },
     { id: "mascots", label: "志工家族", icon: "🐾" },
@@ -82,8 +84,31 @@ export default function Header({ activeSection, onNavigate }: HeaderProps) {
           </nav>
         </div>
 
-        {/* Quick Help Button */}
-        <div className="hidden xl:flex items-center gap-2">
+        <div className="flex items-center gap-2 shrink-0">
+          {isAdmin && (
+            <button
+              onClick={() => onNavigate("admin")}
+              className="px-3 py-2 bg-amber-300 border-2 border-[#1e293b] rounded-xl text-xs font-black"
+            >
+              管理後台
+            </button>
+          )}
+          <button
+            onClick={() => onNavigate(user ? "member" : "auth")}
+            className="px-3 py-2 bg-emerald-600 text-white border-2 border-[#1e293b] rounded-xl text-xs font-black"
+            id="member-account-btn"
+          >
+            {user ? "會員中心" : "登入／註冊"}
+          </button>
+          {user && (
+            <button
+              onClick={() => void signOut()}
+              className="px-3 py-2 bg-white border-2 border-[#1e293b] rounded-xl text-xs font-black"
+            >
+              登出
+            </button>
+          )}
+          <div className="hidden xl:flex items-center gap-2">
           <button
             onClick={() => onNavigate("chat")}
             className="px-4 py-2 bg-red-400 hover:bg-red-500 text-white font-bold rounded-2xl border-3 border-[#1e293b] bubbly-shadow-lg text-sm flex items-center gap-2 cursor-pointer hover:-translate-y-0.5 active:translate-y-0 transition-transform"
@@ -92,6 +117,7 @@ export default function Header({ activeSection, onNavigate }: HeaderProps) {
             <Sparkles className="w-4 h-4 fill-white" />
             諮詢守護獸
           </button>
+          </div>
         </div>
       </div>
     </header>
