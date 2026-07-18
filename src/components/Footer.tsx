@@ -1,5 +1,5 @@
 import React from "react";
-import { Shield, Heart, Mail, Phone, MapPin } from "lucide-react";
+import { Shield, Heart, Mail, Phone } from "lucide-react";
 
 interface FooterProps {
   onNavigate: (sectionId: string) => void;
@@ -76,27 +76,20 @@ export default function Footer({ onNavigate }: FooterProps) {
 
         {/* Contact info column (Col: 4) */}
         <div className="md:col-span-4">
-          <h5 className="font-black text-sm uppercase tracking-widest text-white/50 mb-6">聯絡與申訴熱線</h5>
+          <h5 className="font-black text-sm uppercase tracking-widest text-white/50 mb-6">權益關懷專線</h5>
           <ul className="space-y-4 text-sm font-medium text-white/80">
             <li className="flex items-start gap-3">
               <Phone className="w-5 h-5 text-amber-400 shrink-0 mt-0.5" />
               <div>
-                <p className="font-extrabold text-white">權益關懷專線</p>
-                <p className="text-xs text-white/60">02-2345-6789（週一至週五 09:00 - 18:00）</p>
+                <p className="font-extrabold text-white">服務與申訴熱線</p>
+                <p className="text-xs text-white/60">(02)8666-8111（週一至週五 09:00 - 18:00）</p>
               </div>
             </li>
             <li className="flex items-start gap-3">
               <Mail className="w-5 h-5 text-amber-400 shrink-0 mt-0.5" />
               <div>
                 <p className="font-extrabold text-white">申訴調查電子信箱</p>
-                <p className="text-xs text-white/60">support@beunion.tw</p>
-              </div>
-            </li>
-            <li className="flex items-start gap-3">
-              <MapPin className="w-5 h-5 text-amber-400 shrink-0 mt-0.5" />
-              <div>
-                <p className="font-extrabold text-white">台北總部辦事處</p>
-                <p className="text-xs text-white/60">台北市中正區志工大樓 8 樓 801 室</p>
+                <p className="text-xs text-white/60">volt02332@gmail.com</p>
               </div>
             </li>
           </ul>

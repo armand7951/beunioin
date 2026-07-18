@@ -7,6 +7,8 @@ import ShieldHub from "./components/ShieldHub";
 import RightsQuiz from "./components/RightsQuiz";
 import AIConsultation from "./components/AIConsultation";
 import ReportForm from "./components/ReportForm";
+import NewsBoard from "./components/NewsBoard";
+import AdminDashboard from "./components/AdminDashboard";
 import Footer from "./components/Footer";
 import { Shield, Sparkles, Heart } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
@@ -16,28 +18,36 @@ export default function App() {
   const [selectedMascotId, setSelectedMascotId] = useState("animal");
 
   useEffect(() => {
-    // Read and parse URL hash routing
-    const handleHashChange = () => {
-      const hash = window.location.hash.replace("#", "");
-      const validSections = ["home", "mascots", "welfare", "shield", "quiz", "chat", "report"];
-      if (validSections.includes(hash)) {
-        setActiveSection(hash);
+    // Read and parse URL pathname routing (clean URLs)
+    const handleLocationChange = () => {
+      const pathName = window.location.pathname;
+      const path = pathName.replace(/^\/+|\/+$/g, "");
+      const validSections = ["home", "mascots", "welfare", "shield", "quiz", "chat", "report", "admin"];
+      if (validSections.includes(path)) {
+        setActiveSection(path);
+      } else if (path === "") {
+        setActiveSection("home");
       } else {
         setActiveSection("home");
       }
     };
 
     // Run once on load
-    handleHashChange();
+    handleLocationChange();
 
-    window.addEventListener("hashchange", handleHashChange);
+    window.addEventListener("popstate", handleLocationChange);
+    // Custom event to handle programmatical path change
+    window.addEventListener("pushstate_change", handleLocationChange);
     return () => {
-      window.removeEventListener("hashchange", handleHashChange);
+      window.removeEventListener("popstate", handleLocationChange);
+      window.removeEventListener("pushstate_change", handleLocationChange);
     };
   }, []);
 
   const handleNavigation = (sectionId: string) => {
-    window.location.hash = sectionId;
+    const path = sectionId === "home" ? "/" : `/${sectionId}`;
+    window.history.pushState({}, "", path);
+    window.dispatchEvent(new Event("pushstate_change"));
     // Smooth scroll to top when switching pages
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
@@ -45,7 +55,8 @@ export default function App() {
   const handleSelectMascotForChat = (mascotId: string) => {
     setSelectedMascotId(mascotId);
     // Programmatically navigate to the chat page
-    window.location.hash = "chat";
+    window.history.pushState({}, "", "/chat");
+    window.dispatchEvent(new Event("pushstate_change"));
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
@@ -76,6 +87,9 @@ export default function App() {
             {activeSection === "home" && (
               <div>
                 <Hero onNavigate={handleNavigation} />
+                
+                {/* Dynamic Activities News Board Section */}
+                <NewsBoard onNavigateToAdmin={() => handleNavigation("admin")} />
                 
                 {/* Home Page Highlights & Portals */}
                 <div className="bg-amber-50/20 border-t-4 border-[#1e293b] py-16 px-4">
@@ -162,6 +176,10 @@ export default function App() {
 
             {activeSection === "report" && (
               <ReportForm />
+            )}
+
+            {activeSection === "admin" && (
+              <AdminDashboard />
             )}
           </motion.div>
         </AnimatePresence>

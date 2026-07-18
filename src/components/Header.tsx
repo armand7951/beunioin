@@ -16,6 +16,7 @@ export default function Header({ activeSection, onNavigate }: HeaderProps) {
     { id: "quiz", label: "權益學堂", icon: "🎓" },
     { id: "chat", label: "AI守護獸", icon: "💬" },
     { id: "report", label: "權益申訴", icon: "💌" },
+    { id: "admin", label: "網站後台", icon: "⚙️" },
   ];
 
   return (

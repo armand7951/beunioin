@@ -1,16 +1,142 @@
 import express from "express";
 import path from "path";
+import fs from "fs";
 import { createServer as createViteServer } from "vite";
 import { GoogleGenAI } from "@google/genai";
 import dotenv from "dotenv";
 
 dotenv.config();
 
+const NEWS_FILE = path.join(process.cwd(), "news_data.json");
+
+// Helper to read news from file
+function getNews() {
+  try {
+    if (!fs.existsSync(NEWS_FILE)) {
+      const defaultNews = [
+        {
+          id: "news-1",
+          title: "🛡️ 115年暑期全台動保現場志工安全培訓營，正式開放報名！",
+          category: "教育訓練",
+          date: "2026-07-20",
+          summary: "為提升動保前線志工在救護與收容現場的安全意識，工會與多位資深動保專家聯合舉辦北中南三場實務培訓，含犬貓行為防衛、犬齒咬傷急救及個人裝備規格說明。",
+          content: "各位親愛的動保夥伴：\n\n每一次投身動保現場，您都在為受傷、無助的生命抵擋風雨。然而，現場的突發狀況往往難以預料。為此，台灣環境生態護育產業工會特別規劃「115年暑期動保志工現場安全培訓營」，邀請資深行為學訓練師與急診室醫師，為大家帶來最實用的實務特訓！\n\n【課程核心亮點】\n1. **浪浪行為與防範應對**：判讀犬貓警戒與攻擊訊號，學會如何安全接近與撤離。\n2. **現場緊急救護實作**：遭遇犬貓抓咬傷、刺傷時的關鍵急救步驟與傷口清理常識。\n3. **個人防護裝備規格指南**：刺蝟手套、防割護臂、長筒安全防滑靴之正確挑選與保養。\n\n【場次資訊】\n- **北部場**：115/08/10 (日) 台北志工教育會館\n- **中部場**：115/08/17 (日) 台中生態研習教室\n- **南部場**：115/08/24 (日) 高雄動保推廣中心\n\n※ 本課程完全免費，志工夥伴享有優先錄取權，並於課後頒發安全研習結業證書。請立即透過下方連結或工會專線報名！\n\n台灣環境生態護育產業工會 關心您 🐾",
+          imageUrl: "https://images.unsplash.com/photo-1548199973-03cce0bbc87b?auto=format&fit=crop&q=80&w=800",
+          isPinned: true
+        },
+        {
+          id: "news-2",
+          title: "🌱 賀！爭取成功！工會首創「前線志工24小時全年不中斷意外保障方案」",
+          category: "工會動態",
+          date: "2026-07-15",
+          summary: "台灣環產與多家保險公司積極爭取，終於達成劃時代共識！自下月起，工會正式會員將享有首創「365天全年無休」前線與交通之專屬高額意外及醫療保險，為全台守護者織起安全網。",
+          content: "親愛的會員及志工夥伴：\n\n我們深知，熱心生態與環境保護的您，不論是利用假日去淨灘、參與植樹，或是半夜接到野生動物救傷通報，危險往往不分時間、不分上下班。\n\n過去，一般的志工保險僅限於「出勤簽到期間」，交通往返或非表定活動時間若不幸發生意外，往往求助無門。\n\n經過工會不懈的努力與多次與保險公會、承保廠商的艱難談判，我們終於達成了劃時代的共識！\n\n【方案重大突破】\n1. **365天不限時段**：只要是本工會正式註冊會員，不論是否在執行官方出勤任務，全年 24 小時皆享有基本意外傷害險與實支實付醫療險保障！\n2. **高額給付保障**：包含因意外造成的殘疾、重大燒燙傷及住院津貼。\n3. **交通前後緩衝**：針對一般志工隊夥伴，出勤前後與交通往返的意外保障，也正式由 1 小時延長至「前後 2 小時」！\n\n工會理事長表示：「我們保護為萬物挺身而出的人。保護他們的生命與家庭安全，是工會最核心、最不可妥協的職責。」\n\n詳細投保流程與會員權益說明書將於近日寄發至您的電子信箱。若有任何疑問，歡迎撥打權益關懷專線 (02)8666-8111 諮詢。\n\n台灣環境生態護育產業工會 🛡️",
+          imageUrl: "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&q=80&w=800",
+          isPinned: true
+        },
+        {
+          id: "news-3",
+          title: "💧 【防暑與防刺】滴滴提醒您：夏季淨灘出勤預防傷暑與刺傷的三大心法",
+          category: "活動公告",
+          date: "2026-07-12",
+          summary: "酷暑來臨，海灘現場氣溫飆高，且暗藏玻璃碎片與廢棄魚鉤。環境守護獸「滴滴」提醒所有淨灘夥伴，務必掌握「補水、防曬、穿厚底」三大要訣，高高興興出門、平平安安回家！",
+          content: "哈囉各位愛地球的環境守護勇士！我是滴滴 💧！\n\n夏天到了，看見大家頂著烈日，在沙灘上彎腰撿拾海洋垃圾、保衛海洋生態，滴滴心裡真的無比感動，但也非常擔心大家的中暑和受傷狀況捏！\n\n夏天的沙灘地表溫度常常突破 45 度，海風夾雜高溫，水分流失極快；同時，沙子底下可能掩埋著看不見的碎玻璃、鏽蝕鐵釘或廢棄魚鉤。\n\n為了保護大家，滴滴整理了「夏季淨灘安全三大心法」，大家一定要背起來喔！\n\n1. **定時定量補水，絕不「渴了才喝」**：\n   每 20 分鐘一定要到陰涼處喝水 150-200ml。建議攜帶含有微量鹽分的運動飲料，預防體內電解質失衡導致熱痙攣。\n\n2. **手套與厚底鞋是安全的基本底線**：\n   絕對不要穿夾腳拖或涼鞋淨灘！務必穿著「厚底防滑運動鞋」或「安全雨鞋」，防範鐵釘刺穿。撿拾垃圾時一定要配戴「防刺耐磨手套」，嚴禁徒手觸摸不明針筒或廢棄網具。\n\n3. **注意熱衰竭的前兆**：\n   如果出勤中感到頭暈、心跳加速、大量出汗後突然皮膚乾熱無汗、噁心想吐，這已經是熱傷害的警訊！請立即通知同組夥伴，移至陰涼通風處、解開領口，並使用濕毛巾擦拭額頭與頸部散熱。\n\n工會出勤現場皆備有緊急醫藥箱與遮陽帳，若夥伴有任何不適，請立即向組長反映。讓我們一起健康、快樂地守護海岸線！ 🌍",
+          imageUrl: "https://images.unsplash.com/photo-1618477388954-7852f32655ec?auto=format&fit=crop&q=80&w=800",
+          isPinned: false
+        }
+      ];
+      fs.writeFileSync(NEWS_FILE, JSON.stringify(defaultNews, null, 2), "utf-8");
+      return defaultNews;
+    }
+    const data = fs.readFileSync(NEWS_FILE, "utf-8");
+    return JSON.parse(data);
+  } catch (error) {
+    console.error("Error reading news file:", error);
+    return [];
+  }
+}
+
+// Helper to save news to file
+function saveNews(newsList: any[]) {
+  try {
+    fs.writeFileSync(NEWS_FILE, JSON.stringify(newsList, null, 2), "utf-8");
+  } catch (error) {
+    console.error("Error writing news file:", error);
+  }
+}
+
 async function startServer() {
   const app = express();
   const PORT = 3000;
 
   app.use(express.json());
+
+  // Activities News API CRUD endpoints
+  app.get("/api/news", (req, res) => {
+    const list = getNews();
+    res.json(list);
+  });
+
+  app.post("/api/news", (req, res) => {
+    try {
+      const list = getNews();
+      const newNews = {
+        id: `news-${Date.now()}`,
+        title: req.body.title || "無標題公告",
+        category: req.body.category || "活動公告",
+        date: req.body.date || new Date().toISOString().split("T")[0],
+        summary: req.body.summary || "",
+        content: req.body.content || "",
+        imageUrl: req.body.imageUrl || "",
+        isPinned: !!req.body.isPinned
+      };
+      list.unshift(newNews);
+      saveNews(list);
+      res.status(201).json(newNews);
+    } catch (e: any) {
+      res.status(500).json({ error: e.message });
+    }
+  });
+
+  app.put("/api/news/:id", (req, res) => {
+    try {
+      const list = getNews();
+      const index = list.findIndex((item: any) => item.id === req.params.id);
+      if (index === -1) {
+        return res.status(404).json({ error: "找不到該公告消息" });
+      }
+
+      list[index] = {
+        ...list[index],
+        title: req.body.title !== undefined ? req.body.title : list[index].title,
+        category: req.body.category !== undefined ? req.body.category : list[index].category,
+        date: req.body.date !== undefined ? req.body.date : list[index].date,
+        summary: req.body.summary !== undefined ? req.body.summary : list[index].summary,
+        content: req.body.content !== undefined ? req.body.content : list[index].content,
+        imageUrl: req.body.imageUrl !== undefined ? req.body.imageUrl : list[index].imageUrl,
+        isPinned: req.body.isPinned !== undefined ? !!req.body.isPinned : list[index].isPinned
+      };
+
+      saveNews(list);
+      res.json(list[index]);
+    } catch (e: any) {
+      res.status(500).json({ error: e.message });
+    }
+  });
+
+  app.delete("/api/news/:id", (req, res) => {
+    try {
+      const list = getNews();
+      const newList = list.filter((item: any) => item.id !== req.params.id);
+      if (list.length === newList.length) {
+        return res.status(404).json({ error: "找不到該公告消息" });
+      }
+      saveNews(newList);
+      res.json({ success: true, message: "刪除公告消息成功" });
+    } catch (e: any) {
+      res.status(500).json({ error: e.message });
+    }
+  });
 
   // API routes FIRST
   app.post("/api/gemini/consultation", async (req, res) => {
