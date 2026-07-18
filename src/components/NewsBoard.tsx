@@ -58,7 +58,7 @@ export default function NewsBoard({ onNavigateToAdmin }: NewsBoardProps) {
     };
   }, []);
 
-  const categories = ["全部", "活動公告", "工會動態", "教育訓練", "權益申訴"];
+  const categories = ["全部", "活動紀錄", "工會公告", "知識分享"];
 
   const filteredNews = news.filter((item) => {
     const matchesSearch = 
@@ -80,15 +80,14 @@ export default function NewsBoard({ onNavigateToAdmin }: NewsBoardProps) {
 
   const getCategoryStyles = (category: string) => {
     switch (category) {
-      case "教育訓練":
+      case "活動紀錄":
         return "bg-emerald-100 text-emerald-800 border-emerald-300";
-      case "工會動態":
+      case "工會公告":
         return "bg-indigo-100 text-indigo-800 border-indigo-300";
-      case "權益申訴":
-        return "bg-rose-100 text-rose-800 border-rose-300";
-      case "活動公告":
-      default:
+      case "知識分享":
         return "bg-amber-100 text-amber-800 border-amber-300";
+      default:
+        return "bg-slate-100 text-slate-800 border-slate-300";
     }
   };
 
@@ -103,10 +102,10 @@ export default function NewsBoard({ onNavigateToAdmin }: NewsBoardProps) {
               <Megaphone className="w-3.5 h-3.5 animate-bounce" /> LATEST NEWS & EVENTS
             </span>
             <h2 className="text-2xl sm:text-3xl md:text-4xl font-black text-[#1e293b] mt-3">
-              最新守護消息 ‧ 夥伴動態
+              最新共生消息 ‧ 夥伴動態
             </h2>
             <p className="text-sm sm:text-base font-bold text-[#1e293b]/60 mt-2">
-              即時追蹤台灣環產的第一手現場公告、教育訓練、權益保障與活動詳情。
+              即時追蹤台灣環境共生工會的第一手活動紀錄、重要公告與深度知識分享。
             </p>
           </div>
 
@@ -351,7 +350,7 @@ export default function NewsBoard({ onNavigateToAdmin }: NewsBoardProps) {
               {/* Close footer */}
               <div className="p-6 border-t-4 border-[#1e293b] bg-amber-50/40 flex justify-between items-center shrink-0">
                 <span className="text-xs font-bold text-[#1e293b]/40">
-                  台灣環境生態護育產業工會 • 守護您的權益
+                  台灣環境共生工會 • 爭取環境勞工權益與環境正義
                 </span>
                 <button
                   onClick={() => setSelectedItem(null)}

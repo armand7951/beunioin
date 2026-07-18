@@ -8,6 +8,7 @@ import RightsQuiz from "./components/RightsQuiz";
 import AIConsultation from "./components/AIConsultation";
 import ReportForm from "./components/ReportForm";
 import NewsBoard from "./components/NewsBoard";
+import EventCalendar from "./components/EventCalendar";
 import AdminDashboard from "./components/AdminDashboard";
 import Footer from "./components/Footer";
 import { Shield, Sparkles, Heart } from "lucide-react";
@@ -88,6 +89,9 @@ export default function App() {
               <div>
                 <Hero onNavigate={handleNavigation} />
                 
+                {/* Interactive Event Calendar & Volunteer Sign Up */}
+                <EventCalendar />
+
                 {/* Dynamic Activities News Board Section */}
                 <NewsBoard onNavigateToAdmin={() => handleNavigation("admin")} />
                 

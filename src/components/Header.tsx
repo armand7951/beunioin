@@ -1,5 +1,5 @@
 import React from "react";
-import { Sparkles, Heart } from "lucide-react";
+import { Shield, Sparkles, Heart } from "lucide-react";
 import { motion } from "motion/react";
 
 interface HeaderProps {
@@ -16,7 +16,6 @@ export default function Header({ activeSection, onNavigate }: HeaderProps) {
     { id: "quiz", label: "權益學堂", icon: "🎓" },
     { id: "chat", label: "AI守護獸", icon: "💬" },
     { id: "report", label: "權益申訴", icon: "💌" },
-    { id: "admin", label: "網站後台", icon: "⚙️" },
   ];
 
   return (
@@ -28,11 +27,10 @@ export default function Header({ activeSection, onNavigate }: HeaderProps) {
           className="flex items-center gap-2 sm:gap-3 group cursor-pointer"
           id="brand-logo-btn"
         >
-          <img
-            src="/logo.png"
-            alt="台灣環境生態護育產業工會標誌"
-            className="w-12 h-12 object-contain shrink-0 transition-transform group-hover:rotate-3"
-          />
+          <div className="relative p-1.5 bg-amber-400 rounded-2xl border-3 border-[#1e293b] bubbly-shadow-lg transform group-hover:rotate-6 transition-transform shrink-0">
+            <Shield className="w-5 h-5 sm:w-6 sm:h-6 text-[#1e293b] fill-white" />
+            <span className="absolute -top-1 -right-1 text-[8px] sm:text-[10px]">✨</span>
+          </div>
           <div className="text-left">
             <h1 className="text-sm sm:text-base lg:text-lg xl:text-xl font-black text-[#1e293b] tracking-tight flex items-center gap-1 leading-tight">
               <span>台灣環境生態護育產業工會</span>

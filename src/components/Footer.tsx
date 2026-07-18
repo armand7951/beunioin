@@ -1,5 +1,5 @@
 import React from "react";
-import { Heart, Mail, Phone } from "lucide-react";
+import { Shield, Heart, Mail, Phone } from "lucide-react";
 
 interface FooterProps {
   onNavigate: (sectionId: string) => void;
@@ -13,11 +13,9 @@ export default function Footer({ onNavigate }: FooterProps) {
         {/* Brand Column (Col: 5) */}
         <div className="md:col-span-5 flex flex-col items-start">
           <div className="flex items-center gap-3 mb-6">
-            <img
-              src="/logo.png"
-              alt="台灣環境生態護育產業工會標誌"
-              className="w-[52px] h-[52px] object-contain shrink-0"
-            />
+            <div className="p-2.5 bg-amber-400 rounded-2xl border-2 border-white">
+              <Shield className="w-6 h-6 text-[#1e293b] fill-white" />
+            </div>
             <div>
               <h4 className="text-lg font-black tracking-wider text-white">台灣環境生態護育產業工會</h4>
               <p className="text-[9px] font-black tracking-wider text-white/50 uppercase">Taiwan Environmental Ecology and Conservation Industry Union</p>
@@ -101,9 +99,17 @@ export default function Footer({ onNavigate }: FooterProps) {
 
       <div className="max-w-7xl mx-auto mt-16 pt-8 border-t border-white/10 text-center text-xs font-bold text-white/40">
         <p>© 2026 台灣環境生態護育產業工會 Taiwan Environmental Ecology and Conservation Industry Union (BeUnion). All Rights Reserved.</p>
-        <p className="mt-2 text-[10px] text-white/20">
-          工會登記字號：府勞資字第 1120155234 號 • 全台環境生態、動植物工作者與志工權益捍衛熱血守護中 🐾🌱💧
-        </p>
+        <div className="mt-2 text-[10px] text-white/20 flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2">
+          <span>工會登記字號：府勞資字第 1120155234 號 • 全台環境生態、動植物工作者與志工權益捍衛熱血守護中 🐾🌱💧</span>
+          <span className="hidden sm:inline text-white/10">•</span>
+          <button 
+            onClick={() => onNavigate("admin")} 
+            className="text-white/10 hover:text-white/40 transition-colors cursor-pointer text-[9px] font-normal underline decoration-white/10"
+            id="hidden-admin-btn"
+          >
+            系統管理
+          </button>
+        </div>
       </div>
     </footer>
   );
