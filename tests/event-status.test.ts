@@ -20,6 +20,22 @@ test("an event is ended after its explicit end time", () => {
   );
 });
 
+test("an event can be explicitly marked as ended before its scheduled end", () => {
+  assert.equal(
+    getEventStatus(
+      {
+        endsAt: "2026-07-19T12:00:00+08:00",
+        registrationOpen: false,
+        maxSeats: 80,
+        registeredCount: 45,
+        lifecycleStatus: "ended",
+      },
+      new Date("2026-07-19T01:00:00+08:00"),
+    ),
+    "ended",
+  );
+});
+
 test("a future event is full when no seats remain", () => {
   assert.equal(
     getEventStatus(

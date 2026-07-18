@@ -5,13 +5,17 @@ export interface EventStatusInput {
   registrationOpen: boolean;
   maxSeats: number;
   registeredCount: number;
+  lifecycleStatus?: "scheduled" | "ended" | "cancelled";
 }
 
 export function getEventStatus(
   event: EventStatusInput,
   now = new Date(),
 ): EventStatus {
-  if (new Date(event.endsAt).getTime() <= now.getTime()) {
+  if (
+    event.lifecycleStatus === "ended" ||
+    new Date(event.endsAt).getTime() <= now.getTime()
+  ) {
     return "ended";
   }
 
