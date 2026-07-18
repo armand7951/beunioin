@@ -1,13 +1,16 @@
 import { Mascot, QuizQuestion, CaseReport } from "./types";
+import mascotAnimal from "./assets/images/mascot_animal_1784352808868.jpg";
+import mascotPlant from "./assets/images/mascot_plant_1784352820477.jpg";
+import mascotEco from "./assets/images/mascot_eco_1784352828963.jpg";
 
 export const MASCOTS: Mascot[] = [
   {
     id: "animal",
     name: "守護犬阿旺",
     role: "動物保護志工代言人",
-    avatar: "/src/assets/images/mascot_animal_1784352808868.jpg",
+    avatar: mascotAnimal,
     description: "熱愛所有毛茸茸的小生命！阿旺是一隻穿著志工橘色反光背心的黃金獵犬，總是搖著尾巴，為在收容所、流浪犬貓關懷、野生動物急救現場奔波的志工夥伴們打氣，也是大家最棒的傾聽者！",
-    quote: "汪汪！當你守護受傷的毛孩子時，阿旺和生態護育工會會張開隱形的守護大網，緊緊抱住你、保護你的安全與權益！🐾",
+    quote: "汪汪！當你守護受傷 of 毛孩子時，阿旺和生態護育工會會張開隱形的守護大網，緊緊抱住你、保護你的安全與權益！🐾",
     color: "amber",
     borderColor: "border-amber-500",
     bgColor: "bg-amber-50",
@@ -35,7 +38,7 @@ export const MASCOTS: Mascot[] = [
     id: "plant",
     name: "小發芽芽芽",
     role: "植物與森林志工代言人",
-    avatar: "/src/assets/images/mascot_plant_1784352820477.jpg",
+    avatar: mascotPlant,
     description: "充滿朝氣與生命力的小幼苗！芽芽頭上戴著小草帽，拿著迷你澆水罐，代表了種樹、林務、濕地復育和植物保育的志工們。有芽芽在的地方，就有滿滿的芬多精和綠色正能量！🌱",
     quote: "嗶嗶！每種下一顆種子，世界就多了一片溫暖。芽芽會為你撐起遮陽傘，保護你不中暑，安全開心地在土地裡呼吸！☀️🌱",
     color: "emerald",
@@ -44,7 +47,7 @@ export const MASCOTS: Mascot[] = [
     guidelines: [
       {
         title: "👒 防暑降溫與水分補給",
-        content: "長時間在大太陽下除草、植樹或復育，主辦單位應規劃每服務 50 分鐘、休息 10 分鐘的蔭涼處，並隨時提供乾淨飲用水，預防熱衰竭。"
+        content: "長時間在大太陽下除草、植樹 or 復育，主辦單位應規劃每服務 50 分鐘、休息 10 分鐘的蔭涼處，並隨時提供乾淨飲用水，預防熱衰竭。"
       },
       {
         title: "🐝 戶外防蟲與環境宣導",
@@ -65,7 +68,7 @@ export const MASCOTS: Mascot[] = [
     id: "eco",
     name: "小滴滴超人",
     role: "環境與永續志工代言人",
-    avatar: "/src/assets/images/mascot_eco_1784352828963.jpg",
+    avatar: mascotEco,
     description: "由最乾淨的晨露凝聚而成！滴滴手持環保竹夾子，身背彩虹減塑袋，是海灘淨灘、登山淨山、社區減塑推廣志工們的最佳夥伴。滴滴開朗幽默，永遠在最前線守護地球的蔚藍與潔淨！💧",
     quote: "呼哈！雖然滿沙灘的垃圾讓人頭痛，但滴滴會當你最強壯的過濾器！我們手牽手，一邊捍衛大自然，一邊捍衛志工應得的尊嚴與安全！🌊💙",
     color: "sky",
@@ -132,7 +135,7 @@ export const QUIZ_QUESTIONS: QuizQuestion[] = [
       "可以登錄服務時數、申請『志願服務榮譽卡』，享有部分風景區、博物館免費或優惠，並累積個人奉獻履歷。"
     ],
     correctIndex: 1,
-    explanation: "志願服務紀錄冊是你的榮耀履歷表！時數累積達到標準後，可以申請志願服務榮譽卡，享有眾多政府場館、風景區的免費或優惠。主辦單位應依法為你登錄，不得拖延或漏登錄。"
+    explanation: "志願服務紀錄冊是你的榮耀履歷表！時數累積達到標準後，可以申請志願服務榮譽卡，享有眾多政府場館、風景區的免費 or 優惠。主辦單位應依法為你登錄，不得拖延或漏登錄。"
   }
 ];
 

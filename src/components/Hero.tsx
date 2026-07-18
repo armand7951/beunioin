@@ -1,6 +1,7 @@
 import React from "react";
 import { Shield, Sparkles, AlertTriangle, ArrowRight } from "lucide-react";
 import { motion } from "motion/react";
+import heroImg from "../assets/images/volunteer_shield_hero_1784352794806.jpg";
 
 interface HeroProps {
   onNavigate: (sectionId: string) => void;
@@ -75,7 +76,7 @@ export default function Hero({ onNavigate }: HeroProps) {
           {/* Main Hero Image */}
           <div className="relative z-10 rounded-[3xl] overflow-hidden border-4 border-[#1e293b] bubbly-shadow-xl transform rotate-1 hover:rotate-0 transition-transform duration-300">
             <img
-              src="/src/assets/images/volunteer_shield_hero_1784352794806.jpg"
+              src={heroImg}
               alt="台灣環境生態護育產業工會，守護志工與保育者的安全後盾"
               className="w-full h-auto object-cover"
               referrerPolicy="no-referrer"
