@@ -11,6 +11,13 @@ test("member profiles are created from verified auth identities", () => {
   assert.match(migration, /create table public\.profiles/i);
   assert.match(migration, /references auth\.users/i);
   assert.match(migration, /create trigger on_auth_user_created/i);
+  assert.match(
+    readFileSync(
+      "supabase/migrations/20260719094500_harden_profile_trigger.sql",
+      "utf8",
+    ),
+    /revoke all on function public\.handle_new_user\(\)\s*from public, anon, authenticated/i,
+  );
 });
 
 test("admin authorization is isolated from editable profiles", () => {
