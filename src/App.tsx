@@ -2,12 +2,14 @@ import React, { useState } from "react";
 import Header from "./components/Header";
 import Hero from "./components/Hero";
 import MascotSelector from "./components/MascotSelector";
+import VolunteerWelfare from "./components/VolunteerWelfare";
 import ShieldHub from "./components/ShieldHub";
 import RightsQuiz from "./components/RightsQuiz";
 import AIConsultation from "./components/AIConsultation";
 import ReportForm from "./components/ReportForm";
 import Footer from "./components/Footer";
 import { Shield, Sparkles, Heart } from "lucide-react";
+import { motion, AnimatePresence } from "motion/react";
 
 export default function App() {
   const [activeSection, setActiveSection] = useState("home");
@@ -15,24 +17,15 @@ export default function App() {
 
   const handleNavigation = (sectionId: string) => {
     setActiveSection(sectionId);
-    
-    // Smooth scroll to element
-    const element = document.getElementById(`${sectionId}-section`);
-    if (element) {
-      element.scrollIntoView({ behavior: "smooth", block: "start" });
-    } else if (sectionId === "home") {
-      window.scrollTo({ top: 0, behavior: "smooth" });
-    }
+    // Smooth scroll to top when switching pages
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   const handleSelectMascotForChat = (mascotId: string) => {
     setSelectedMascotId(mascotId);
-    // Programmatically navigate to the chat section
+    // Programmatically navigate to the chat page
     setActiveSection("chat");
-    const element = document.getElementById("chat-section");
-    if (element) {
-      element.scrollIntoView({ behavior: "smooth", block: "start" });
-    }
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   return (
@@ -48,39 +41,109 @@ export default function App() {
       {/* Modern Bubbly Header */}
       <Header activeSection={activeSection} onNavigate={handleNavigation} />
 
-      {/* Main Single-Page Content Experience */}
+      {/* Main Multi-Page Content Experience */}
       <main className="flex-1">
-        
-        {/* Hero Section */}
-        <div id="home-section">
-          <Hero onNavigate={handleNavigation} />
-        </div>
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={activeSection}
+            initial={{ opacity: 0, y: 15 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -15 }}
+            transition={{ duration: 0.25, ease: "easeOut" }}
+            className="w-full"
+          >
+            {activeSection === "home" && (
+              <div>
+                <Hero onNavigate={handleNavigation} />
+                
+                {/* Home Page Highlights & Portals */}
+                <div className="bg-amber-50/20 border-t-4 border-[#1e293b] py-16 px-4">
+                  <div className="max-w-6xl mx-auto text-center">
+                    <span className="text-emerald-600 font-extrabold tracking-wider text-xs uppercase">✨ 工會三大核心服務 Quick Entry</span>
+                    <h3 className="text-3xl font-black text-[#1e293b] mt-2 mb-10">保障、福利與關懷，一鍵即達</h3>
+                    
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                      {/* Card 1 */}
+                      <div className="bg-white border-3 border-[#1e293b] p-6 rounded-3xl bubbly-shadow-md text-left flex flex-col justify-between hover:scale-[1.02] transition-transform">
+                        <div>
+                          <span className="text-4xl block mb-4">🐾</span>
+                          <h4 className="text-lg font-black text-[#1e293b] mb-2">1. 志工家族與守護指南</h4>
+                          <p className="text-sm font-semibold text-[#1e293b]/70 leading-relaxed">
+                            動物、植物、環境與永續工程守護者各有專屬安全準則與救護規範。
+                          </p>
+                        </div>
+                        <button 
+                          onClick={() => handleNavigation("mascots")}
+                          className="mt-6 w-full py-2.5 bg-emerald-300 hover:bg-emerald-400 text-xs font-black rounded-xl border-2 border-[#1e293b] cursor-pointer text-center block transition-colors"
+                        >
+                          前往志工家族 🐾
+                        </button>
+                      </div>
 
-        {/* Mascot Selector & Volunteer Guidelines */}
-        <div id="mascots-section">
-          <MascotSelector onSelectMascot={handleSelectMascotForChat} />
-        </div>
+                      {/* Card 2 */}
+                      <div className="bg-white border-3 border-[#1e293b] p-6 rounded-3xl bubbly-shadow-md text-left flex flex-col justify-between hover:scale-[1.02] transition-transform">
+                        <div>
+                          <span className="text-4xl block mb-4">🎁</span>
+                          <h4 className="text-lg font-black text-[#1e293b] mb-2">2. 志工夥伴福利總覽</h4>
+                          <p className="text-sm font-semibold text-[#1e293b]/70 leading-relaxed">
+                            全程意外保險、豐富線上課程、法律錄案諮詢、心理諮商及社群連結福利。
+                          </p>
+                        </div>
+                        <button 
+                          onClick={() => handleNavigation("welfare")}
+                          className="mt-6 w-full py-2.5 bg-amber-300 hover:bg-amber-400 text-xs font-black rounded-xl border-2 border-[#1e293b] cursor-pointer text-center block transition-colors"
+                        >
+                          解鎖福利總覽 🎁
+                        </button>
+                      </div>
 
-        {/* Core Shield Bento Hub */}
-        <div id="shield-section">
-          <ShieldHub />
-        </div>
+                      {/* Card 3 */}
+                      <div className="bg-white border-3 border-[#1e293b] p-6 rounded-3xl bubbly-shadow-md text-left flex flex-col justify-between hover:scale-[1.02] transition-transform">
+                        <div>
+                          <span className="text-4xl block mb-4">💬</span>
+                          <h4 className="text-lg font-black text-[#1e293b] mb-2">3. AI 守護獸智能諮詢</h4>
+                          <p className="text-sm font-semibold text-[#1e293b]/70 leading-relaxed">
+                            遇見權益漏報、工具危險或心理壓力？AI 家族小守護獸 24H 在線為您解答。
+                          </p>
+                        </div>
+                        <button 
+                          onClick={() => handleNavigation("chat")}
+                          className="mt-6 w-full py-2.5 bg-sky-300 hover:bg-sky-400 text-xs font-black rounded-xl border-2 border-[#1e293b] cursor-pointer text-center block transition-colors"
+                        >
+                          開啟 AI 諮詢 💬
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
 
-        {/* Rights Quiz & Certificate Generator */}
-        <div id="quiz-section">
-          <RightsQuiz />
-        </div>
+            {activeSection === "mascots" && (
+              <MascotSelector onSelectMascot={handleSelectMascotForChat} />
+            )}
 
-        {/* AI Mascot Chat powered by Gemini */}
-        <div id="chat-section">
-          <AIConsultation initialMascotId={selectedMascotId} />
-        </div>
+            {activeSection === "welfare" && (
+              <VolunteerWelfare />
+            )}
 
-        {/* Complaints Form & Case progress board */}
-        <div id="report-section">
-          <ReportForm />
-        </div>
+            {activeSection === "shield" && (
+              <ShieldHub />
+            )}
 
+            {activeSection === "quiz" && (
+              <RightsQuiz />
+            )}
+
+            {activeSection === "chat" && (
+              <AIConsultation initialMascotId={selectedMascotId} />
+            )}
+
+            {activeSection === "report" && (
+              <ReportForm />
+            )}
+          </motion.div>
+        </AnimatePresence>
       </main>
 
       {/* Beautiful Footer */}

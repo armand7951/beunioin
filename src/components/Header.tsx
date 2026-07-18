@@ -11,6 +11,7 @@ export default function Header({ activeSection, onNavigate }: HeaderProps) {
   const menuItems = [
     { id: "home", label: "守護首頁", icon: "🏡" },
     { id: "mascots", label: "志工家族", icon: "🐾" },
+    { id: "welfare", label: "志工福利", icon: "🎁" },
     { id: "shield", label: "暖心後盾", icon: "🛡️" },
     { id: "quiz", label: "權益學堂", icon: "🎓" },
     { id: "chat", label: "AI守護獸", icon: "💬" },

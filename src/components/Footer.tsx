@@ -47,6 +47,11 @@ export default function Footer({ onNavigate }: FooterProps) {
               </button>
             </li>
             <li>
+              <button onClick={() => onNavigate("welfare")} className="hover:text-amber-400 transition-colors text-left cursor-pointer">
+                🎁 志工福利 (Welfare Center)
+              </button>
+            </li>
+            <li>
               <button onClick={() => onNavigate("shield")} className="hover:text-amber-400 transition-colors text-left cursor-pointer">
                 🛡️ 暖心後盾 (Shield Hub)
               </button>
