@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { 
   Search, 
@@ -8,54 +8,50 @@ import {
   ArrowRight, 
   X, 
   Clock, 
-  Tag,
   AlertCircle
 } from "lucide-react";
+import { IMPORTED_NEWS, type NewsItem } from "../data/news";
 
-export interface NewsItem {
-  id: string;
-  title: string;
-  category: string;
-  date: string;
-  summary: string;
-  content: string;
-  imageUrl?: string;
-  isPinned: boolean;
-}
+export type { NewsItem } from "../data/news";
 
 interface NewsBoardProps {
   onNavigateToAdmin?: () => void;
 }
 
+function mergeNews(managedNews: NewsItem[]) {
+  const merged = new Map(
+    IMPORTED_NEWS.map((item) => [item.id, item] as const),
+  );
+  managedNews.forEach((item) => merged.set(item.id, item));
+  return [...merged.values()];
+}
+
 export default function NewsBoard({ onNavigateToAdmin }: NewsBoardProps) {
-  const [news, setNews] = useState<NewsItem[]>([]);
+  const [news, setNews] = useState<NewsItem[]>(IMPORTED_NEWS);
   const [loading, setLoading] = useState<boolean>(true);
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [selectedCategory, setSelectedCategory] = useState<string>("全部");
   const [selectedItem, setSelectedItem] = useState<NewsItem | null>(null);
 
-  const fetchNews = async () => {
-    setLoading(true);
-    try {
-      const res = await fetch("/api/news");
-      if (res.ok) {
-        const data = await res.json();
-        setNews(data);
-      }
-    } catch (err) {
-      console.error("Error fetching news:", err);
-    } finally {
-      setLoading(false);
-    }
-  };
-
   useEffect(() => {
-    fetchNews();
-    // Refresh news list when window gains focus or state changes
-    window.addEventListener("focus", fetchNews);
-    return () => {
-      window.removeEventListener("focus", fetchNews);
+    const fetchNews = async () => {
+      setLoading(true);
+      try {
+        const response = await fetch("/api/news");
+        if (response.ok) {
+          const managedNews = (await response.json()) as NewsItem[];
+          setNews(mergeNews(managedNews));
+        }
+      } catch (error) {
+        console.error("Error fetching news:", error);
+      } finally {
+        setLoading(false);
+      }
     };
+
+    void fetchNews();
+    window.addEventListener("focus", fetchNews);
+    return () => window.removeEventListener("focus", fetchNews);
   }, []);
 
   const categories = ["全部", "活動紀錄", "工會公告", "知識分享"];
@@ -342,9 +338,59 @@ export default function NewsBoard({ onNavigateToAdmin }: NewsBoardProps) {
                 </div>
 
                 {/* Main rich text content */}
-                <div className="prose prose-slate max-w-none text-sm sm:text-base font-medium leading-relaxed whitespace-pre-wrap space-y-4">
-                  {selectedItem.content}
+                <div className="prose prose-slate max-w-none text-sm sm:text-base font-medium leading-relaxed space-y-3">
+                  {selectedItem.content.split("\n").map((line, index) => {
+                    if (!line.trim()) return null;
+                    if (line.startsWith("#### ")) {
+                      return <h5 key={index} className="text-base font-black mt-5">{line.slice(5)}</h5>;
+                    }
+                    if (line.startsWith("### ")) {
+                      return <h4 key={index} className="text-lg font-black mt-6 text-emerald-800">{line.slice(4)}</h4>;
+                    }
+                    if (line.startsWith("## ")) {
+                      return <h3 key={index} className="text-xl font-black mt-8 border-l-4 border-amber-400 pl-3">{line.slice(3)}</h3>;
+                    }
+                    if (line.startsWith("• ")) {
+                      return <p key={index} className="pl-5 relative before:content-['•'] before:absolute before:left-1 before:text-emerald-600">{line.slice(2)}</p>;
+                    }
+                    return <p key={index}>{line}</p>;
+                  })}
                 </div>
+
+                {selectedItem.images && selectedItem.images.length > 0 && (
+                  <div className="pt-6 border-t-2 border-dashed border-[#1e293b]/15">
+                    <h3 className="text-lg font-black mb-4">文章圖片</h3>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      {selectedItem.images.map((block, index) =>
+                        block.type === "image" ? (
+                          <figure key={`${block.imageUrl}-${index}`} className="overflow-hidden rounded-2xl border-2 border-[#1e293b] bg-white">
+                            <img
+                              src={block.imageUrl}
+                              alt={block.alt}
+                              className="w-full h-auto object-contain"
+                            />
+                            {block.caption && (
+                              <figcaption className="p-3 text-xs font-semibold text-[#1e293b]/65 leading-relaxed">
+                                {block.caption}
+                              </figcaption>
+                            )}
+                          </figure>
+                        ) : null,
+                      )}
+                    </div>
+                  </div>
+                )}
+
+                {selectedItem.sourceUrl && (
+                  <a
+                    href={selectedItem.sourceUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="inline-flex text-xs font-black text-emerald-700 underline"
+                  >
+                    查看原始文章
+                  </a>
+                )}
               </div>
 
               {/* Close footer */}
