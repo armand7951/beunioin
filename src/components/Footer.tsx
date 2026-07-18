@@ -1,5 +1,5 @@
 import React from "react";
-import { Shield, Heart, Mail, Phone } from "lucide-react";
+import { Heart, Mail, Phone } from "lucide-react";
 
 interface FooterProps {
   onNavigate: (sectionId: string) => void;
@@ -13,9 +13,11 @@ export default function Footer({ onNavigate }: FooterProps) {
         {/* Brand Column (Col: 5) */}
         <div className="md:col-span-5 flex flex-col items-start">
           <div className="flex items-center gap-3 mb-6">
-            <div className="p-2.5 bg-amber-400 rounded-2xl border-2 border-white">
-              <Shield className="w-6 h-6 text-[#1e293b] fill-white" />
-            </div>
+            <img
+              src="/logo.png"
+              alt="台灣環境生態護育產業工會標誌"
+              className="w-[52px] h-[52px] object-contain shrink-0"
+            />
             <div>
               <h4 className="text-lg font-black tracking-wider text-white">台灣環境生態護育產業工會</h4>
               <p className="text-[9px] font-black tracking-wider text-white/50 uppercase">Taiwan Environmental Ecology and Conservation Industry Union</p>
