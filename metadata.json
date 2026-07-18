@@ -1,0 +1,6 @@
+{
+  "name": "台灣環境生態護育產業工會 (BeUnion)",
+  "description": "守護環境保育者的安全後盾！專為動植物保護、山林保育及環境工程工作者與志工打造的暖心官方網站，提供權益保障、AI 守護獸諮詢與權益小學堂。",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
