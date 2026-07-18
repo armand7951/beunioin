@@ -40,34 +40,45 @@ export default function Header({ activeSection, onNavigate }: HeaderProps) {
         </button>
 
         {/* Bouncy Navigation Links */}
-        <nav className="flex items-center gap-1.5 sm:gap-2 md:gap-2.5 overflow-x-auto lg:overflow-visible flex-nowrap lg:flex-wrap w-full lg:w-auto justify-start lg:justify-center px-1.5 py-1.5 whitespace-nowrap scrollbar-none snap-x snap-mandatory scroll-smooth" id="main-navigation">
-          {menuItems.map((item) => {
-            const isActive = activeSection === item.id;
-            return (
-              <button
-                key={item.id}
-                id={`nav-${item.id}`}
-                onClick={() => onNavigate(item.id)}
-                className={`relative px-2.5 py-1.5 sm:px-3 sm:py-2 rounded-xl text-xs sm:text-sm font-bold transition-all duration-200 flex items-center gap-1 cursor-pointer border-2 shrink-0 snap-start active:scale-95 ${
-                  isActive
-                    ? "bg-amber-300 border-[#1e293b] text-[#1e293b] shadow-[2px_2px_0px_0px_#1e293b] -translate-y-0.5"
-                    : "border-transparent text-[#1e293b]/80 hover:text-[#1e293b] hover:bg-amber-100/50 hover:border-[#1e293b]/30"
-                }`}
-              >
-                <span>{item.icon}</span>
-                <span>{item.label}</span>
-                {isActive && (
-                  <motion.span
-                    layoutId="header-active-pill"
-                    className="absolute -top-1 -right-1 text-[8px] bg-red-400 text-white rounded-full px-1 py-0.2 font-bold scale-75 border border-[#1e293b]"
-                  >
-                    ON
-                  </motion.span>
-                )}
-              </button>
-            );
-          })}
-        </nav>
+        <div className="relative w-full lg:w-auto overflow-hidden">
+          {/* Mobile Swipe Hint */}
+          <div className="flex lg:hidden items-center justify-center gap-1.5 text-[10px] font-black text-amber-600/90 mb-1 animate-pulse bg-amber-500/5 py-0.5 px-3 rounded-full w-max mx-auto border border-amber-500/10">
+            <span>👈 左右滑動選單 👉</span>
+          </div>
+
+          {/* Left/Right scroll indicators (gradient shades) */}
+          <div className="absolute left-0 bottom-1.5 top-auto h-[38px] w-6 bg-gradient-to-r from-[#fdfbf7] to-transparent pointer-events-none z-10 lg:hidden" />
+          <div className="absolute right-0 bottom-1.5 top-auto h-[38px] w-6 bg-gradient-to-l from-[#fdfbf7] to-transparent pointer-events-none z-10 lg:hidden" />
+
+          <nav className="flex items-center gap-1.5 sm:gap-2 md:gap-2.5 overflow-x-auto lg:overflow-visible flex-nowrap lg:flex-wrap w-full lg:w-auto justify-start lg:justify-center px-4 py-1.5 whitespace-nowrap scrollbar-none snap-x snap-mandatory scroll-smooth" id="main-navigation">
+            {menuItems.map((item) => {
+              const isActive = activeSection === item.id;
+              return (
+                <button
+                  key={item.id}
+                  id={`nav-${item.id}`}
+                  onClick={() => onNavigate(item.id)}
+                  className={`relative px-2.5 py-1.5 sm:px-3 sm:py-2 rounded-xl text-xs sm:text-sm font-bold transition-all duration-200 flex items-center gap-1 cursor-pointer border-2 shrink-0 snap-start active:scale-95 ${
+                    isActive
+                      ? "bg-amber-300 border-[#1e293b] text-[#1e293b] shadow-[2px_2px_0px_0px_#1e293b] -translate-y-0.5"
+                      : "border-transparent text-[#1e293b]/80 hover:text-[#1e293b] hover:bg-amber-100/50 hover:border-[#1e293b]/30"
+                  }`}
+                >
+                  <span>{item.icon}</span>
+                  <span>{item.label}</span>
+                  {isActive && (
+                    <motion.span
+                      layoutId="header-active-pill"
+                      className="absolute -top-1 -right-1 text-[8px] bg-red-400 text-white rounded-full px-1 py-0.2 font-bold scale-75 border border-[#1e293b]"
+                    >
+                      ON
+                    </motion.span>
+                  )}
+                </button>
+              );
+            })}
+          </nav>
+        </div>
 
         {/* Quick Help Button */}
         <div className="hidden xl:flex items-center gap-2">

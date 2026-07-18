@@ -60,31 +60,42 @@ export default function ShieldHub() {
         </div>
 
         {/* Tab Buttons */}
-        <div className="flex items-center justify-start md:justify-center gap-2 overflow-x-auto pb-3 mb-10 scrollbar-none snap-x snap-mandatory px-2">
-          {[
-            { id: "purpose", label: "🌟 工會宗旨 & 立案", icon: Scale },
-            { id: "tasks", label: "📋 法定十大任務", icon: BookOpen },
-            { id: "team", label: "💼 理監事與創始團隊", icon: Users },
-            { id: "membership", label: "💳 快速入會與福利", icon: Coins },
-            { id: "contact", label: "📞 聯絡我們", icon: Mail }
-          ].map((tab) => {
-            const IconComponent = tab.icon;
-            const isActive = activeTab === tab.id;
-            return (
-              <button
-                key={tab.id}
-                onClick={() => setActiveTab(tab.id as any)}
-                className={`snap-start shrink-0 px-4 py-3 rounded-2xl text-xs md:text-sm font-black border-3 transition-all duration-200 flex items-center gap-2 cursor-pointer ${
-                  isActive
-                    ? "bg-amber-400 border-[#1e293b] text-[#1e293b] shadow-[4px_4px_0px_0px_#1e293b] -translate-y-0.5"
-                    : "bg-white border-[#1e293b]/20 text-[#1e293b]/70 hover:border-[#1e293b]/40 hover:bg-amber-50"
-                }`}
-              >
-                <IconComponent className="w-4 h-4 shrink-0" />
-                <span>{tab.label}</span>
-              </button>
-            );
-          })}
+        <div className="relative w-full overflow-hidden">
+          {/* Mobile Swipe Hint */}
+          <div className="flex md:hidden items-center justify-center gap-1.5 text-xs font-black text-amber-600/90 mb-3 animate-pulse bg-amber-500/5 py-1 px-4 rounded-full w-max mx-auto border border-amber-500/10 shadow-[2px_2px_0px_0px_rgba(245,158,11,0.05)]">
+            <span>👈 左右滑動看更多選項 👉</span>
+          </div>
+
+          {/* Left/Right scroll indicators (gradient shades) */}
+          <div className="absolute left-0 bottom-3.5 top-auto h-[52px] w-8 bg-gradient-to-r from-[#fffdfa] to-transparent pointer-events-none z-10 md:hidden" />
+          <div className="absolute right-0 bottom-3.5 top-auto h-[52px] w-8 bg-gradient-to-l from-[#fffdfa] to-transparent pointer-events-none z-10 md:hidden" />
+
+          <div className="flex items-center justify-start md:justify-center gap-2 overflow-x-auto pb-3 mb-10 scrollbar-none snap-x snap-mandatory px-4">
+            {[
+              { id: "purpose", label: "🌟 工會宗旨 & 立案", icon: Scale },
+              { id: "tasks", label: "📋 法定十大任務", icon: BookOpen },
+              { id: "team", label: "💼 理監事與創始團隊", icon: Users },
+              { id: "membership", label: "💳 快速入會與福利", icon: Coins },
+              { id: "contact", label: "📞 聯絡我們", icon: Mail }
+            ].map((tab) => {
+              const IconComponent = tab.icon;
+              const isActive = activeTab === tab.id;
+              return (
+                <button
+                  key={tab.id}
+                  onClick={() => setActiveTab(tab.id as any)}
+                  className={`snap-start shrink-0 px-4 py-3 rounded-2xl text-xs md:text-sm font-black border-3 transition-all duration-200 flex items-center gap-2 cursor-pointer ${
+                    isActive
+                      ? "bg-amber-400 border-[#1e293b] text-[#1e293b] shadow-[4px_4px_0px_0px_#1e293b] -translate-y-0.5"
+                      : "bg-white border-[#1e293b]/20 text-[#1e293b]/70 hover:border-[#1e293b]/40 hover:bg-amber-50"
+                  }`}
+                >
+                  <IconComponent className="w-4 h-4 shrink-0" />
+                  <span>{tab.label}</span>
+                </button>
+              );
+            })}
+          </div>
         </div>
 
         {/* Tab Content Panels with motion */}
