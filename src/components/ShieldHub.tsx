@@ -49,10 +49,10 @@ export default function ShieldHub() {
         <div className="text-center mb-12">
           <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-[#1e293b]/10 text-[#1e293b] rounded-full text-xs font-black tracking-widest uppercase mb-3 border-2 border-[#1e293b] shadow-[2px_2px_0px_0px_#1e293b]">
             <Shield className="w-4 h-4 text-amber-500 fill-amber-500" />
-            <span>BeUnion • 台灣環境生態護育產業工會官網資訊庫</span>
+            <span>BeUnion • 台灣環境生態護育產業工會</span>
           </div>
           <h3 className="text-3xl md:text-5xl font-black text-[#1e293b] tracking-tight">
-            我們將 <span className="text-[#1e293b] underline decoration-amber-400 decoration-wavy decoration-2">beunion.tw</span> 官方資訊完整呈現
+            我們保護為萬物挺身而出的人
           </h3>
           <p className="text-md font-bold text-[#1e293b]/60 mt-4 max-w-2xl mx-auto">
             工會自立案以來，全力維護動植物護育、生態保育、山林復育與環境教育等一線夥伴與志工的尊嚴、勞權與生命安全。
