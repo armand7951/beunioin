@@ -1,9 +1,71 @@
 import React, { useState } from "react";
-import { Shield, BookOpen, Heart, Activity, Scale, Users, Coins, Mail, MapPin, Check, ArrowRight, Sparkles } from "lucide-react";
+import { Shield, BookOpen, Scale, Users, Coins, Mail, Phone, Check, ArrowRight, Sparkles, Send, LoaderCircle } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
+
+const EMPTY_CONTACT_FORM = {
+  name: "",
+  email: "",
+  phone: "",
+  message: "",
+  website: "",
+};
 
 export default function ShieldHub() {
   const [activeTab, setActiveTab] = useState<"purpose" | "tasks" | "team" | "membership" | "contact">("purpose");
+  const [contactForm, setContactForm] = useState(EMPTY_CONTACT_FORM);
+  const [contactStatus, setContactStatus] = useState<"idle" | "submitting" | "success" | "error">("idle");
+  const [contactFeedback, setContactFeedback] = useState("");
+
+  const handleContactChange = (
+    event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
+  ) => {
+    const { name, value } = event.target;
+    setContactForm((current) => ({ ...current, [name]: value }));
+    if (contactStatus !== "idle") {
+      setContactStatus("idle");
+      setContactFeedback("");
+    }
+  };
+
+  const handleContactSubmit = async (
+    event: React.FormEvent<HTMLFormElement>,
+  ) => {
+    event.preventDefault();
+    if (contactStatus === "submitting") return;
+
+    setContactStatus("submitting");
+    setContactFeedback("");
+
+    try {
+      const response = await fetch("/api/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(contactForm),
+      });
+      const result = await response
+        .json()
+        .catch(() => ({ error: "聯絡表單暫時無法送出，請稍後再試。" }));
+
+      if (!response.ok) {
+        throw new Error(
+          typeof result.error === "string"
+            ? result.error
+            : "聯絡表單暫時無法送出，請稍後再試。",
+        );
+      }
+
+      setContactForm(EMPTY_CONTACT_FORM);
+      setContactStatus("success");
+      setContactFeedback("訊息已成功送出！工會夥伴會儘快與您聯絡。");
+    } catch (error) {
+      setContactStatus("error");
+      setContactFeedback(
+        error instanceof Error
+          ? error.message
+          : "聯絡表單暫時無法送出，請稍後再試。",
+      );
+    }
+  };
 
   const tenTasks = [
     { num: "01", title: "團體協約之締結、修改或廢止", desc: "主動發起與各公私立動物收容所、環保機關或研究單位簽署團體協約，確保基本勞動條件與權益保障。" },
@@ -392,72 +454,182 @@ export default function ShieldHub() {
                 transition={{ duration: 0.2 }}
                 className="space-y-6"
               >
-                <div>
-                  <h4 className="text-2xl md:text-3xl font-black text-[#1e293b] flex items-center gap-2">
-                    <span>聯絡我們 / 秘書處資訊</span>
-                    <span className="text-xs font-black bg-sky-100 text-sky-800 px-2.5 py-1 rounded-lg border-2 border-sky-600 shadow-[1px_1px_0px_0px_#0369a1]">24小時電子信箱常開</span>
-                  </h4>
-                  <p className="text-sm font-bold text-[#1e293b]/60 mt-1">有關入會程序、勞資申訴、保育技術交流、或團體保險事宜，歡迎以下列管道聯絡工會：</p>
+                <div className="flex flex-col md:flex-row md:items-end justify-between gap-3 border-b-2 border-dashed border-[#1e293b]/15 pb-5">
+                  <div>
+                    <h4 className="text-2xl md:text-3xl font-black text-[#1e293b] flex flex-wrap items-center gap-2">
+                      <span>聯絡我們</span>
+                      <span className="text-xs font-black bg-sky-100 text-sky-800 px-2.5 py-1 rounded-lg border-2 border-sky-600 shadow-[1px_1px_0px_0px_#0369a1]">24小時電子信箱常開</span>
+                    </h4>
+                    <p className="text-sm font-bold text-[#1e293b]/60 mt-2">
+                      有關入會程序、勞資申訴、保育技術交流或團體保險，請留下資料，我們會儘快回覆。
+                    </p>
+                  </div>
+                  <div className="text-xs font-black text-[#1e293b]/55">標示「必填」的欄位請完整填寫</div>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-2">
-                  <div className="p-6 bg-amber-50 rounded-3xl border-3 border-[#1e293b] text-left hover:-translate-y-0.5 transition-transform">
-                    <div className="w-10 h-10 bg-amber-200 rounded-xl border-2 border-[#1e293b] flex items-center justify-center mb-4">
-                      <MapPin className="w-5 h-5 text-[#1e293b]" />
-                    </div>
-                    <h5 className="font-black text-lg text-[#1e293b] mb-1">會址 / 聯絡處</h5>
-                    <p className="text-xs font-bold text-[#1e293b]/70 leading-relaxed">
-                      桃園市中壢區 (工會正式立案登記於桃園市，於北中南均有志工聯絡幹部。詳細通訊地址請來信或官方 LINE 洽詢)。
-                    </p>
-                    <div className="text-[10px] text-amber-700 font-extrabold mt-3">工會字號：府勞資字第 1120155234 號</div>
-                  </div>
-
-                  <div className="p-6 bg-emerald-50 rounded-3xl border-3 border-[#1e293b] text-left hover:-translate-y-0.5 transition-transform">
-                    <div className="w-10 h-10 bg-emerald-200 rounded-xl border-2 border-[#1e293b] flex items-center justify-center mb-4">
-                      <Mail className="w-5 h-5 text-[#1e293b]" />
-                    </div>
-                    <h5 className="font-black text-lg text-[#1e293b] mb-1">官方聯絡信箱</h5>
-                    <p className="text-xs font-bold text-[#1e293b]/70 leading-relaxed mb-4">
-                      有關媒體採訪、專案合作、標案職安稽核、勞資爭議申訴、或長文附件，歡迎投遞至工會官方 Gmail 箱：
-                    </p>
-                    <a
-                      href="mailto:beunion.tw@gmail.com"
-                      className="inline-block px-4 py-2 bg-white text-xs font-black text-emerald-800 rounded-lg border-2 border-emerald-600 hover:bg-emerald-100"
-                    >
-                      beunion.tw@gmail.com ✉️
-                    </a>
-                  </div>
-
-                  <div className="p-6 bg-sky-50 rounded-3xl border-3 border-[#1e293b] text-left hover:-translate-y-0.5 transition-transform">
-                    <div className="w-10 h-10 bg-sky-200 rounded-xl border-2 border-[#1e293b] flex items-center justify-center mb-4">
-                      <Shield className="w-5 h-5 text-[#1e293b]" />
-                    </div>
-                    <h5 className="font-black text-lg text-[#1e293b] mb-1">LINE 官方帳號</h5>
-                    <p className="text-xs font-bold text-[#1e293b]/70 leading-relaxed mb-4">
-                      提供一般會員一對一諮詢服務、申訴追蹤與即時對答。請至 LINE APP 搜尋帳號或 ID：
-                    </p>
-                    <div className="inline-block px-4 py-2 bg-white text-xs font-black text-sky-800 rounded-lg border-2 border-sky-600">
-                      ID 搜尋：<span className="underline select-all">@beunion</span> 💬
-                    </div>
-                  </div>
-                </div>
-
-                <div className="p-6 bg-slate-900 text-white rounded-[2rem] border-3 border-[#1e293b] text-left flex flex-col md:flex-row items-center justify-between gap-6">
-                  <div className="space-y-1">
-                    <h5 className="font-black text-amber-400 text-base">🐾🌱💧 台灣環境生態護育產業工會 • 捍衛勞權永不停歇</h5>
-                    <p className="text-xs text-white/70">
-                      我們是由動植物工作者、一線志工、環境調查員自發成立的產業工會。我們深信：守護前線夥伴，就是守護台灣自然生態的最佳方式！
-                    </p>
-                  </div>
-                  <button
-                    onClick={() => {
-                      const element = document.getElementById("chat-section");
-                      if (element) element.scrollIntoView({ behavior: "smooth" });
-                    }}
-                    className="px-5 py-3 bg-red-400 hover:bg-red-500 text-white font-black text-xs rounded-xl border-2 border-white/20 shadow-lg cursor-pointer shrink-0"
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 pt-2">
+                  <form
+                    className="lg:col-span-8 p-5 md:p-7 bg-amber-50 rounded-[2rem] border-3 border-[#1e293b] space-y-5"
+                    onSubmit={handleContactSubmit}
                   >
-                    即刻呼喚 AI 守護獸 🐾
-                  </button>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                      <label className="space-y-2 text-sm font-black text-[#1e293b]">
+                        <span>姓名 <span className="text-red-500">必填</span></span>
+                        <input
+                          type="text"
+                          name="name"
+                          value={contactForm.name}
+                          onChange={handleContactChange}
+                          required
+                          maxLength={100}
+                          autoComplete="name"
+                          className="w-full rounded-xl border-2 border-[#1e293b] bg-white px-4 py-3 text-sm font-bold outline-none transition focus:ring-4 focus:ring-amber-300/50"
+                          placeholder="請輸入貴姓大名"
+                        />
+                      </label>
+
+                      <label className="space-y-2 text-sm font-black text-[#1e293b]">
+                        <span>Email <span className="text-red-500">必填</span></span>
+                        <input
+                          type="email"
+                          name="email"
+                          value={contactForm.email}
+                          onChange={handleContactChange}
+                          required
+                          maxLength={254}
+                          autoComplete="email"
+                          className="w-full rounded-xl border-2 border-[#1e293b] bg-white px-4 py-3 text-sm font-bold outline-none transition focus:ring-4 focus:ring-amber-300/50"
+                          placeholder="name@example.com"
+                        />
+                      </label>
+                    </div>
+
+                    <label className="block space-y-2 text-sm font-black text-[#1e293b]">
+                      <span>手機號碼 <span className="text-red-500">必填</span></span>
+                      <input
+                        type="tel"
+                        name="phone"
+                        value={contactForm.phone}
+                        onChange={handleContactChange}
+                        required
+                        maxLength={30}
+                        autoComplete="tel"
+                        inputMode="tel"
+                        className="w-full rounded-xl border-2 border-[#1e293b] bg-white px-4 py-3 text-sm font-bold outline-none transition focus:ring-4 focus:ring-amber-300/50"
+                        placeholder="例如：0912-345-678"
+                      />
+                    </label>
+
+                    <label className="block space-y-2 text-sm font-black text-[#1e293b]">
+                      <span>目前從事的工作／聯絡內容</span>
+                      <textarea
+                        name="message"
+                        value={contactForm.message}
+                        onChange={handleContactChange}
+                        maxLength={2000}
+                        rows={6}
+                        className="w-full resize-y rounded-xl border-2 border-[#1e293b] bg-white px-4 py-3 text-sm font-bold leading-relaxed outline-none transition focus:ring-4 focus:ring-amber-300/50"
+                        placeholder="請簡單說明您的工作背景、想加入工會的原因，或需要協助的事項。"
+                      />
+                    </label>
+
+                    <label
+                      className="absolute -left-[10000px] top-auto h-px w-px overflow-hidden"
+                      aria-hidden="true"
+                    >
+                      網站
+                      <input
+                        type="text"
+                        name="website"
+                        value={contactForm.website}
+                        onChange={handleContactChange}
+                        tabIndex={-1}
+                        autoComplete="off"
+                      />
+                    </label>
+
+                    {contactStatus === "success" ? (
+                      <div
+                        role="status"
+                        className="rounded-xl border-2 border-emerald-600 bg-emerald-100 px-4 py-3 text-sm font-black text-emerald-900"
+                      >
+                        {contactFeedback}
+                      </div>
+                    ) : null}
+
+                    {contactStatus === "error" ? (
+                      <div
+                        role="alert"
+                        className="rounded-xl border-2 border-red-600 bg-red-50 px-4 py-3 text-sm font-black text-red-800"
+                      >
+                        {contactFeedback} 若持續無法送出，請直接來信
+                        <a className="underline ml-1" href="mailto:volt02332@gmail.com">
+                          volt02332@gmail.com
+                        </a>
+                        。
+                      </div>
+                    ) : null}
+
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                      <p className="text-xs font-bold text-[#1e293b]/55">
+                        送出即表示您同意工會僅為回覆本次聯絡而使用所填資料。
+                      </p>
+                      <button
+                        type="submit"
+                        disabled={contactStatus === "submitting"}
+                        className="inline-flex min-w-36 items-center justify-center gap-2 rounded-xl border-3 border-[#1e293b] bg-amber-400 px-6 py-3 text-sm font-black text-[#1e293b] shadow-[4px_4px_0px_0px_#1e293b] transition hover:bg-amber-300 active:translate-x-0.5 active:translate-y-0.5 active:shadow-[2px_2px_0px_0px_#1e293b] disabled:cursor-wait disabled:opacity-65"
+                      >
+                        {contactStatus === "submitting" ? (
+                          <>
+                            <LoaderCircle className="h-4 w-4 animate-spin" />
+                            送出中
+                          </>
+                        ) : (
+                          <>
+                            <Send className="h-4 w-4" />
+                            送出
+                          </>
+                        )}
+                      </button>
+                    </div>
+                  </form>
+
+                  <aside className="lg:col-span-4 rounded-[2rem] border-3 border-[#1e293b] bg-slate-900 p-6 text-white">
+                    <div className="mb-6 inline-flex h-12 w-12 items-center justify-center rounded-2xl border-2 border-white/30 bg-amber-400 text-[#1e293b]">
+                      <Mail className="h-6 w-6" />
+                    </div>
+                    <h5 className="text-xl font-black">秘書處聯絡資訊</h5>
+                    <p className="mt-2 text-sm font-bold leading-relaxed text-white/70">
+                      若需寄送附件或希望直接聯繫，也可使用以下方式。
+                    </p>
+
+                    <div className="mt-7 space-y-4">
+                      <a
+                        href="tel:+886286668111"
+                        className="flex items-center gap-3 rounded-2xl border-2 border-white/20 bg-white/10 p-4 transition hover:bg-white/15"
+                      >
+                        <Phone className="h-5 w-5 shrink-0 text-amber-400" />
+                        <span>
+                          <span className="block text-xs font-bold text-white/60">聯絡電話</span>
+                          <span className="font-black">(02) 8666-8111</span>
+                        </span>
+                      </a>
+                      <a
+                        href="mailto:volt02332@gmail.com"
+                        className="flex items-center gap-3 rounded-2xl border-2 border-white/20 bg-white/10 p-4 transition hover:bg-white/15"
+                      >
+                        <Mail className="h-5 w-5 shrink-0 text-amber-400" />
+                        <span className="min-w-0">
+                          <span className="block text-xs font-bold text-white/60">官方聯絡信箱</span>
+                          <span className="break-all font-black">volt02332@gmail.com</span>
+                        </span>
+                      </a>
+                    </div>
+
+                    <div className="mt-7 rounded-2xl bg-white/10 p-4 text-xs font-bold leading-relaxed text-white/70">
+                      適用於入會程序、專案合作、勞資申訴、保育技術交流與團體保險諮詢。
+                    </div>
+                  </aside>
                 </div>
               </motion.div>
             )}
