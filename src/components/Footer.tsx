@@ -36,28 +36,8 @@ export default function Footer({ onNavigate }: FooterProps) {
 
         {/* Quick Links Column (Col: 3) */}
         <div className="md:col-span-3">
-          <h5 className="font-black text-sm uppercase tracking-widest text-white/50 mb-6">快速巡邏</h5>
+          <h5 className="font-black text-sm uppercase tracking-widest text-white/50 mb-6">更多服務</h5>
           <ul className="space-y-3 text-sm font-bold">
-            <li>
-              <button onClick={() => onNavigate("home")} className="hover:text-amber-400 transition-colors text-left cursor-pointer">
-                🏡 守護首頁 (Home)
-              </button>
-            </li>
-            <li>
-              <button onClick={() => onNavigate("mascots")} className="hover:text-amber-400 transition-colors text-left cursor-pointer">
-                🐾 志工家族 (Volunteer Families)
-              </button>
-            </li>
-            <li>
-              <button onClick={() => onNavigate("welfare")} className="hover:text-amber-400 transition-colors text-left cursor-pointer">
-                🎁 志工福利 (Welfare Center)
-              </button>
-            </li>
-            <li>
-              <button onClick={() => onNavigate("shield")} className="hover:text-amber-400 transition-colors text-left cursor-pointer">
-                🛡️ 暖心後盾 (Shield Hub)
-              </button>
-            </li>
             <li>
               <button onClick={() => onNavigate("quiz")} className="hover:text-amber-400 transition-colors text-left cursor-pointer">
                 🎓 權益學堂 (Quiz Challenge)

@@ -15,9 +15,6 @@ export default function Header({ activeSection, onNavigate }: HeaderProps) {
     { id: "mascots", label: "志工家族", icon: "🐾" },
     { id: "welfare", label: "志工福利", icon: "🎁" },
     { id: "shield", label: "暖心後盾", icon: "🛡️" },
-    { id: "quiz", label: "權益學堂", icon: "🎓" },
-    { id: "chat", label: "AI守護獸", icon: "💬" },
-    { id: "report", label: "權益申訴", icon: "💌" },
   ];
 
   return (
@@ -44,17 +41,17 @@ export default function Header({ activeSection, onNavigate }: HeaderProps) {
         </button>
 
         {/* Bouncy Navigation Links */}
-        <div className="relative w-full lg:w-auto overflow-hidden flex-1 lg:flex-initial">
+        <div className="relative w-full lg:w-auto overflow-hidden lg:overflow-visible flex-1 lg:flex-initial">
           {/* Mobile Swipe Hint */}
           <div className="flex lg:hidden items-center justify-center gap-1.5 text-[10px] font-black text-amber-600/90 mb-1 animate-pulse bg-amber-500/5 py-0.5 px-3 rounded-full w-max mx-auto border border-amber-500/10">
             <span>👈 左右滑動選單 👉</span>
           </div>
 
           {/* Left/Right scroll indicators (gradient shades) */}
-          <div className="absolute left-0 bottom-1.5 top-auto h-[38px] w-6 bg-gradient-to-r from-[#fdfbf7] to-transparent pointer-events-none z-10" />
-          <div className="absolute right-0 bottom-1.5 top-auto h-[38px] w-6 bg-gradient-to-l from-[#fdfbf7] to-transparent pointer-events-none z-10" />
+          <div className="absolute lg:hidden left-0 bottom-1.5 top-auto h-[38px] w-6 bg-gradient-to-r from-[#fdfbf7] to-transparent pointer-events-none z-10" />
+          <div className="absolute lg:hidden right-0 bottom-1.5 top-auto h-[38px] w-6 bg-gradient-to-l from-[#fdfbf7] to-transparent pointer-events-none z-10" />
 
-          <nav className="flex items-center gap-1 sm:gap-1.5 md:gap-2 overflow-x-auto flex-nowrap w-full lg:w-auto justify-start lg:justify-center px-4 py-1.5 whitespace-nowrap scrollbar-none snap-x snap-mandatory scroll-smooth" id="main-navigation">
+          <nav className="flex items-center gap-1 sm:gap-1.5 md:gap-2 overflow-x-auto lg:overflow-visible flex-nowrap w-full lg:w-auto justify-start lg:justify-center px-4 lg:px-0 py-1.5 whitespace-nowrap scrollbar-none snap-x snap-mandatory lg:snap-none scroll-smooth" id="main-navigation">
             {menuItems.map((item) => {
               const isActive = activeSection === item.id;
               return (
