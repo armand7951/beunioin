@@ -1,7 +1,11 @@
-import React from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Sparkles, Heart } from "lucide-react";
 import { motion } from "motion/react";
 import { useAuth } from "../contexts/AuthContext";
+import {
+  createMobileHeaderScrollState,
+  updateMobileHeaderScroll,
+} from "../lib/mobileHeaderScroll";
 
 interface HeaderProps {
   activeSection: string;
@@ -10,6 +14,8 @@ interface HeaderProps {
 
 export default function Header({ activeSection, onNavigate }: HeaderProps) {
   const { user, signOut, isAdmin } = useAuth();
+  const [isMobileCollapsed, setIsMobileCollapsed] = useState(false);
+  const mobileScrollState = useRef(createMobileHeaderScrollState());
   const menuItems = [
     { id: "home", label: "守護首頁", icon: "🏡" },
     { id: "mascots", label: "志工家族", icon: "🐾" },
@@ -17,9 +23,37 @@ export default function Header({ activeSection, onNavigate }: HeaderProps) {
     { id: "shield", label: "暖心後盾", icon: "🛡️" },
   ];
 
+  useEffect(() => {
+    const handleScroll = () => {
+      const next = updateMobileHeaderScroll(
+        mobileScrollState.current,
+        window.scrollY,
+        window.innerWidth < 1024,
+      );
+      mobileScrollState.current = next;
+      setIsMobileCollapsed(next.collapsed);
+    };
+
+    handleScroll();
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    window.addEventListener("resize", handleScroll);
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+      window.removeEventListener("resize", handleScroll);
+    };
+  }, []);
+
   return (
-    <header className="sticky top-0 z-50 w-full px-4 py-3 bg-[#fdfbf7]/95 backdrop-blur-md border-b-4 border-[#1e293b] transition-all">
-      <div className="max-w-7xl mx-auto flex flex-col lg:flex-row items-center justify-between gap-4">
+    <header
+      className={`sticky top-0 z-50 w-full px-4 bg-[#fdfbf7]/95 backdrop-blur-md border-b-4 border-[#1e293b] transition-[padding] duration-200 motion-reduce:transition-none lg:py-3 ${
+        isMobileCollapsed ? "py-1.5" : "py-3"
+      }`}
+    >
+      <div
+        className={`max-w-7xl mx-auto flex flex-col lg:flex-row items-center justify-between transition-[gap] duration-200 motion-reduce:transition-none lg:gap-4 ${
+          isMobileCollapsed ? "gap-0" : "gap-4"
+        }`}
+      >
         {/* Brand Logo */}
         <button
           onClick={() => onNavigate("home")}
@@ -29,7 +63,9 @@ export default function Header({ activeSection, onNavigate }: HeaderProps) {
           <img
             src="/logo.png"
             alt="台灣環境生態護育產業工會標誌"
-            className="h-12 w-auto sm:h-14 lg:h-16 shrink-0 object-contain transition-transform group-hover:rotate-2"
+            className={`w-auto sm:h-14 lg:h-16 shrink-0 object-contain transition-[height,transform] duration-200 motion-reduce:transition-none group-hover:rotate-2 ${
+              isMobileCollapsed ? "h-10" : "h-12"
+            }`}
           />
           <div className="text-left">
             <h1 className="text-sm sm:text-base lg:text-lg xl:text-xl font-black text-[#1e293b] tracking-tight flex items-center gap-1 leading-tight">
@@ -41,7 +77,13 @@ export default function Header({ activeSection, onNavigate }: HeaderProps) {
         </button>
 
         {/* Bouncy Navigation Links */}
-        <div className="relative w-full lg:w-auto overflow-hidden lg:overflow-visible flex-1 lg:flex-initial">
+        <div
+          className={`mobile-header-expandable relative w-full lg:w-auto overflow-hidden lg:overflow-visible flex-1 lg:flex-initial transition-[max-height,opacity,transform] duration-200 motion-reduce:transition-none lg:max-h-none lg:opacity-100 lg:pointer-events-auto lg:translate-y-0 ${
+            isMobileCollapsed
+              ? "max-h-0 opacity-0 pointer-events-none -translate-y-2"
+              : "max-h-28 opacity-100 translate-y-0"
+          }`}
+        >
           {/* Mobile Swipe Hint */}
           <div className="flex lg:hidden items-center justify-center gap-1.5 text-[10px] font-black text-amber-600/90 mb-1 animate-pulse bg-amber-500/5 py-0.5 px-3 rounded-full w-max mx-auto border border-amber-500/10">
             <span>👈 左右滑動選單 👉</span>
@@ -81,7 +123,13 @@ export default function Header({ activeSection, onNavigate }: HeaderProps) {
           </nav>
         </div>
 
-        <div className="flex items-center gap-2 shrink-0">
+        <div
+          className={`mobile-header-expandable flex items-center gap-2 shrink-0 overflow-hidden lg:overflow-visible transition-[max-height,opacity,transform] duration-200 motion-reduce:transition-none lg:max-h-none lg:opacity-100 lg:pointer-events-auto lg:translate-y-0 ${
+            isMobileCollapsed
+              ? "max-h-0 opacity-0 pointer-events-none -translate-y-2"
+              : "max-h-20 opacity-100 translate-y-0"
+          }`}
+        >
           {isAdmin && (
             <button
               onClick={() => onNavigate("admin")}
