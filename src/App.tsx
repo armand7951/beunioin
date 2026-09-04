@@ -19,7 +19,7 @@ import MemberCenter from "./components/MemberCenter";
 import ResetPassword from "./components/ResetPassword";
 import Footer from "./components/Footer";
 import { Shield, Sparkles, Heart } from "lucide-react";
-import { motion, AnimatePresence } from "motion/react";
+import { motion } from "motion/react";
 
 export default function App() {
   const [activeSection, setActiveSection] = useState("home");
@@ -100,18 +100,18 @@ export default function App() {
 
       {/* Main Multi-Page Content Experience */}
       <main className="flex-1">
-        {/* 不要用 mode="wait"：它會等舊頁的離場動畫跑完才掛載新頁，於是只要離場
-            沒完成（例如分頁在背景、requestAnimationFrame 不觸發），使用者就會卡在
-            舊畫面上，新頁永遠不出現。換頁正確性不該押在一段動畫有沒有跑完。 */}
-        <AnimatePresence>
-          <motion.div
-            key={activeSection}
-            initial={{ opacity: 0, y: 15 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -15 }}
-            transition={{ duration: 0.25, ease: "easeOut" }}
-            className="w-full"
-          >
+        {/* 換頁不經過 AnimatePresence。它要等舊頁的離場動畫跑完才收掉那棵子樹，
+            而動畫靠 requestAnimationFrame —— 分頁在背景時 rAF 不觸發，離場就永遠
+            不會結束：配 mode="wait" 會卡在舊頁、新頁不出現，不配則兩頁一起留在
+            畫面上。key 一變就讓 React 直接卸載舊的，只保留進場淡入；哪一頁該顯示
+            這件事不該取決於一段 250ms 的動畫有沒有跑完。 */}
+        <motion.div
+          key={activeSection}
+          initial={{ opacity: 0, y: 15 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.25, ease: "easeOut" }}
+          className="w-full"
+        >
             {activeSection === "home" && (
               <div>
                 <Hero onNavigate={handleNavigation} />
@@ -253,8 +253,7 @@ export default function App() {
             {activeSection === "reset-password" && (
               <ResetPassword onNavigate={handleNavigation} />
             )}
-          </motion.div>
-        </AnimatePresence>
+        </motion.div>
       </main>
 
       {/* Beautiful Footer */}

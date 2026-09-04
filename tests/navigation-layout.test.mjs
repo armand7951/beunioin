@@ -68,3 +68,16 @@ test("the external AI partner links open safely", () => {
   // 只數真正的網址，別把介面裡的 `url: string;` 也算進去。
   assert.equal((partners.match(/url: "https:/g) ?? []).length, 2);
 });
+
+// 換頁不該包在 AnimatePresence 裡。它要等離場動畫跑完才卸載舊頁，而動畫靠
+// requestAnimationFrame —— 分頁在背景時 rAF 不觸發，離場永遠不結束：
+// 配 mode="wait" 會卡在舊頁看不到新頁，不配則兩頁同時留在畫面上。實際踩過。
+test("switching pages does not depend on an exit animation", () => {
+  const app = readFileSync("src/App.tsx", "utf8");
+  // 比對實際用法而不是任何提及 —— 上面那段說明就寫了這個元件的名字。
+  assert.doesNotMatch(app, /<AnimatePresence/);
+  assert.doesNotMatch(app, /from "motion\/react".*AnimatePresence/);
+  assert.doesNotMatch(app, /exit=\{/);
+  // key 換掉就讓 React 直接卸載舊頁
+  assert.match(app, /key=\{activeSection\}/);
+});
