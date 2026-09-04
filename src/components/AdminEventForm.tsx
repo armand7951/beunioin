@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Loader2, Save, X } from "lucide-react";
+import { Image as ImageIcon, Loader2, Save, Upload, X } from "lucide-react";
 
 export interface AdminEvent {
   id: string;
@@ -62,20 +62,49 @@ const FIELD =
   "w-full px-3 py-2.5 border-2 border-slate-300 rounded-xl font-bold text-sm focus:border-emerald-600 focus:outline-none";
 const LABEL = "block text-xs font-black text-slate-600 mb-1.5";
 
+// 前端也擋一次 3MB。後端當然還是會擋（api/admin/upload.ts），但等到 base64
+// 編完、整包送上去才被拒，使用者要多等好幾秒才知道圖太大。
+const MAX_BYTES = 3 * 1024 * 1024;
+
 interface Props {
   initial: AdminEvent;
   isNew: boolean;
   onCancel: () => void;
   onSave: (event: AdminEvent) => Promise<void>;
+  onUpload: (file: File) => Promise<string>;
 }
 
-export default function AdminEventForm({ initial, isNew, onCancel, onSave }: Props) {
+export default function AdminEventForm({ initial, isNew, onCancel, onSave, onUpload }: Props) {
   const [draft, setDraft] = useState<AdminEvent>(initial);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
+  const [uploading, setUploading] = useState(false);
+  const [uploadError, setUploadError] = useState("");
 
   const set = <K extends keyof AdminEvent>(key: K, value: AdminEvent[K]) =>
     setDraft((current) => ({ ...current, [key]: value }));
+
+  const handleFile = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    // input 要清空，否則選了同一個檔案第二次不會觸發 change，重試就沒反應。
+    event.target.value = "";
+    if (!file) return;
+
+    setUploadError("");
+    if (file.size > MAX_BYTES) {
+      setUploadError(`圖片 ${(file.size / 1024 / 1024).toFixed(1)}MB，超過 3MB 上限。`);
+      return;
+    }
+
+    setUploading(true);
+    try {
+      set("imageUrl", await onUpload(file));
+    } catch (caught) {
+      setUploadError(caught instanceof Error ? caught.message : "圖片上傳失敗。");
+    } finally {
+      setUploading(false);
+    }
+  };
 
   const submit = async (event: React.FormEvent) => {
     event.preventDefault();
@@ -204,13 +233,61 @@ export default function AdminEventForm({ initial, isNew, onCancel, onSave }: Pro
         </div>
 
         <div className="sm:col-span-2">
-          <label className={LABEL}>封面圖片網址</label>
-          <input
-            className={FIELD}
-            value={draft.imageUrl}
-            onChange={(e) => set("imageUrl", e.target.value)}
-            placeholder="/events/EDM1.jpg"
-          />
+          <label className={LABEL}>封面圖片</label>
+          <div className="flex flex-col sm:flex-row gap-4 items-start">
+            {draft.imageUrl ? (
+              <img
+                src={draft.imageUrl}
+                alt="封面預覽"
+                className="w-40 h-28 object-cover rounded-xl border-2 border-slate-300 shrink-0"
+              />
+            ) : (
+              <div className="w-40 h-28 rounded-xl border-2 border-dashed border-slate-300 flex items-center justify-center text-slate-300 shrink-0">
+                <ImageIcon className="w-8 h-8" />
+              </div>
+            )}
+
+            <div className="flex-1 min-w-0">
+              <div className="flex flex-wrap gap-2">
+                <label
+                  className={`inline-flex items-center gap-2 px-4 py-2.5 rounded-xl font-black text-sm border-2 cursor-pointer ${
+                    uploading
+                      ? "border-slate-200 text-slate-400 cursor-wait"
+                      : "border-slate-300 hover:bg-slate-50"
+                  }`}
+                >
+                  {uploading ? (
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                  ) : (
+                    <Upload className="w-4 h-4" />
+                  )}
+                  {uploading ? "上傳中…" : draft.imageUrl ? "更換圖片" : "選擇圖片"}
+                  <input
+                    type="file"
+                    accept="image/jpeg,image/png,image/webp,image/avif,image/gif"
+                    className="hidden"
+                    disabled={uploading}
+                    onChange={handleFile}
+                  />
+                </label>
+                {draft.imageUrl && !uploading && (
+                  <button
+                    type="button"
+                    onClick={() => set("imageUrl", "")}
+                    className="px-4 py-2.5 rounded-xl font-black text-sm border-2 border-red-300 text-red-700 hover:bg-red-50"
+                  >
+                    移除
+                  </button>
+                )}
+              </div>
+              <p className="mt-2 text-xs font-bold text-slate-400">
+                JPG、PNG、WebP、AVIF 或 GIF，單張上限 3MB。選擇後會立即上傳。
+              </p>
+              {uploadError && (
+                <p className="mt-1.5 text-xs font-black text-red-700">{uploadError}</p>
+              )}
+            </div>
+          </div>
         </div>
 
         <div className="sm:col-span-2">

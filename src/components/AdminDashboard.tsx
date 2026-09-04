@@ -97,6 +97,22 @@ export default function AdminDashboard() {
     void reload();
   }, [reload]);
 
+  // 圖片走 base64 而不是 multipart：Vercel serverless 沒有內建的 multipart 解析，
+  // 為了封面圖多拉一個套件不划算。代價是體積膨脹約 33%，所以兩端都卡在 3MB。
+  const uploadImage = async (file: File) => {
+    const dataUrl = await new Promise<string>((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(String(reader.result));
+      reader.onerror = () => reject(new Error("讀取檔案失敗。"));
+      reader.readAsDataURL(file);
+    });
+    const body = await call("/api/admin/upload", {
+      method: "POST",
+      body: JSON.stringify({ contentType: file.type, data: dataUrl }),
+    });
+    return body.url as string;
+  };
+
   const saveEvent = async (draft: AdminEvent) => {
     await call("/api/admin/events", { method: "POST", body: JSON.stringify(draft) });
     setEditing(null);
@@ -290,6 +306,7 @@ export default function AdminDashboard() {
                   setCreating(false);
                 }}
                 onSave={saveEvent}
+                onUpload={uploadImage}
               />
             )}
 
