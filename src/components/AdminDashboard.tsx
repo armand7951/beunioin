@@ -218,33 +218,49 @@ export default function AdminDashboard() {
 
   return (
     <section className="py-12 px-4 bg-slate-50 min-h-[70vh]">
-      <div className="max-w-7xl mx-auto">
-        <p className="text-xs font-black text-emerald-700 flex gap-2 mb-2">
-          <ShieldCheck className="w-4 h-4" />
-          安全管理後台
-        </p>
+      <div className="max-w-7xl mx-auto flex flex-col lg:flex-row gap-6 lg:gap-8">
+        <aside className="lg:w-56 lg:shrink-0">
+          <p className="text-xs font-black text-emerald-700 flex gap-2 mb-3">
+            <ShieldCheck className="w-4 h-4" />
+            安全管理後台
+          </p>
 
-        <div className="flex gap-2 mb-7 border-b-2 border-slate-200">
-          {(
-            [
-              ["events", `活動管理（${events.length}）`],
-              ["registrations", `報名名單（${registrations.length}）`],
-            ] as const
-          ).map(([key, label]) => (
-            <button
-              key={key}
-              onClick={() => setTab(key)}
-              className={`px-5 py-3 font-black text-sm -mb-0.5 border-b-4 transition-colors ${
-                tab === key
-                  ? "border-emerald-600 text-emerald-700"
-                  : "border-transparent text-slate-400 hover:text-slate-600"
-              }`}
-            >
-              {label}
-            </button>
-          ))}
-        </div>
+          {/* 窄螢幕橫向並排、寬螢幕才變成直式側欄；lg 以下維持橫向是因為側欄佔掉
+              寬度後，底下那幾張本來就要橫向捲動的表格會更難看。 */}
+          <nav className="flex lg:flex-col gap-1.5 lg:sticky lg:top-24">
+            {(
+              [
+                ["events", "活動管理", events.length, CalendarPlus],
+                ["registrations", "報名名單", registrations.length, Users],
+              ] as const
+            ).map(([key, label, count, Icon]) => (
+              <button
+                key={key}
+                onClick={() => setTab(key)}
+                aria-current={tab === key ? "page" : undefined}
+                className={`flex flex-1 lg:flex-none items-center gap-2.5 px-4 py-3 rounded-xl font-black text-sm text-left transition-colors border-2 ${
+                  tab === key
+                    ? "bg-[#1e293b] border-[#1e293b] text-white"
+                    : "bg-white border-slate-200 text-slate-500 hover:border-slate-300 hover:text-slate-700"
+                }`}
+              >
+                <Icon className="w-4 h-4 shrink-0" />
+                <span className="flex-1">{label}</span>
+                <span
+                  className={`px-2 py-0.5 rounded-full text-xs ${
+                    tab === key ? "bg-white/20" : "bg-slate-100 text-slate-500"
+                  }`}
+                >
+                  {count}
+                </span>
+              </button>
+            ))}
+          </nav>
+        </aside>
 
+        {/* min-w-0 不能拿掉：flex 子項的預設 min-width 是 auto，底下表格的
+            overflow-x-auto 會失效，整個版面被最寬的表格撐開而出現橫向捲軸。 */}
+        <div className="flex-1 min-w-0">
         {error && (
           <p className="mb-5 p-4 bg-red-50 border border-red-300 text-red-800 rounded-xl font-bold">
             {error}
@@ -490,6 +506,7 @@ export default function AdminDashboard() {
             )}
           </>
         )}
+        </div>
       </div>
     </section>
   );
