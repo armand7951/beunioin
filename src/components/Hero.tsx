@@ -1,5 +1,6 @@
 import React from "react";
 import { Shield, Sparkles, AlertTriangle, ArrowRight } from "lucide-react";
+import { AI_PARTNERS } from "../lib/aiPartners";
 import { motion } from "motion/react";
 import heroImg from "../assets/images/volunteer_shield_hero_1784352794806.jpg";
 
@@ -45,21 +46,28 @@ export default function Hero({ onNavigate }: HeroProps) {
 
           {/* Action Buttons */}
           <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4 mb-8">
-            <button
-              onClick={() => onNavigate("chat")}
-              className="w-full sm:w-auto px-8 py-4 bg-amber-400 hover:bg-amber-500 text-[#1e293b] text-lg font-black rounded-2xl border-4 border-[#1e293b] bubbly-shadow-xl transform hover:-translate-y-1 transition-transform cursor-pointer flex items-center justify-center gap-2"
-              id="hero-chat-btn"
-            >
-              <span>尋找你的 AI 守護獸 💬</span>
-              <ArrowRight className="w-5 h-5 text-[#1e293b] stroke-[3]" />
-            </button>
-            <button
-              onClick={() => onNavigate("quiz")}
-              className="w-full sm:w-auto px-8 py-4 bg-emerald-300 hover:bg-emerald-400 text-[#1e293b] text-lg font-black rounded-2xl border-4 border-[#1e293b] bubbly-shadow-xl transform hover:-translate-y-1 transition-transform cursor-pointer flex items-center justify-center gap-2"
-              id="hero-quiz-btn"
-            >
-              <span>權益檢測挑戰 🎓</span>
-            </button>
+            {AI_PARTNERS.map((partner, index) => (
+              <a
+                key={partner.id}
+                href={partner.url}
+                // 外開新分頁；rel 兩個都要 —— noopener 讓對方頁面拿不到
+                // window.opener，noreferrer 不外洩來源網址。
+                target="_blank"
+                rel="noopener noreferrer"
+                id={`hero-ai-${partner.id}-btn`}
+                className={`w-full sm:w-auto px-8 py-4 text-[#1e293b] text-lg font-black rounded-2xl border-4 border-[#1e293b] bubbly-shadow-xl transform hover:-translate-y-1 transition-transform cursor-pointer flex items-center justify-center gap-2 ${
+                  index === 0
+                    ? "bg-amber-400 hover:bg-amber-500"
+                    : "bg-emerald-300 hover:bg-emerald-400"
+                }`}
+              >
+                <span>
+                  {partner.emoji}
+                  {partner.label}
+                </span>
+                <ArrowRight className="w-5 h-5 text-[#1e293b] stroke-[3]" />
+              </a>
+            ))}
           </div>
 
           {/* Core Concept Pill list */}

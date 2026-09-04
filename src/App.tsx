@@ -1,11 +1,9 @@
 import React, { lazy, Suspense, useEffect, useState } from "react";
+import { AI_PARTNERS } from "./lib/aiPartners";
 import Header from "./components/Header";
 import Hero from "./components/Hero";
-import MascotSelector from "./components/MascotSelector";
 import VolunteerWelfare from "./components/VolunteerWelfare";
 import ShieldHub from "./components/ShieldHub";
-import RightsQuiz from "./components/RightsQuiz";
-import AIConsultation from "./components/AIConsultation";
 import ReportForm from "./components/ReportForm";
 import NewsBoard from "./components/NewsBoard";
 import EventCalendar from "./components/EventCalendar";
@@ -24,7 +22,6 @@ import { motion, AnimatePresence } from "motion/react";
 
 export default function App() {
   const [activeSection, setActiveSection] = useState("home");
-  const [selectedMascotId, setSelectedMascotId] = useState("animal");
   // 文章內頁的代碼。其餘頁面都是固定字串路徑，只有 /blog/<代碼> 帶參數。
   const [postId, setPostId] = useState<string | null>(null);
   const [eventId, setEventId] = useState<string | null>(null);
@@ -34,7 +31,7 @@ export default function App() {
     const handleLocationChange = () => {
       const pathName = window.location.pathname;
       const path = pathName.replace(/^\/+|\/+$/g, "");
-      const validSections = ["home", "mascots", "welfare", "shield", "quiz", "chat", "report", "admin", "auth", "member", "reset-password", "blog"];
+      const validSections = ["home", "welfare", "shield", "report", "admin", "auth", "member", "reset-password", "blog"];
 
       // 帶參數的路徑要在比對固定清單之前先攔下來。
       if (path.startsWith("blog/")) {
@@ -87,14 +84,6 @@ export default function App() {
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
-  const handleSelectMascotForChat = (mascotId: string) => {
-    setSelectedMascotId(mascotId);
-    // Programmatically navigate to the chat page
-    window.history.pushState({}, "", "/chat");
-    window.dispatchEvent(new Event("pushstate_change"));
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  };
-
   return (
     <div className="min-h-screen bg-[#fefdfb] text-[#1e293b] font-sans antialiased flex flex-col selection:bg-amber-200">
       
@@ -142,17 +131,17 @@ export default function App() {
                       {/* Card 1 */}
                       <div className="bg-white border-3 border-[#1e293b] p-6 rounded-3xl bubbly-shadow-md text-left flex flex-col justify-between hover:scale-[1.02] transition-transform">
                         <div>
-                          <span className="text-4xl block mb-4">🐾</span>
-                          <h4 className="text-lg font-black text-[#1e293b] mb-2">1. 志工家族與守護指南</h4>
+                          <span className="text-4xl block mb-4">🛡️</span>
+                          <h4 className="text-lg font-black text-[#1e293b] mb-2">1. 權益申訴與暖心後盾</h4>
                           <p className="text-sm font-semibold text-[#1e293b]/70 leading-relaxed">
-                            動物、植物、環境與永續工程守護者各有專屬安全準則與救護規範。
+                            遇到勞動權益爭議、職安疑慮或裝備問題，工會陪你一起處理。
                           </p>
                         </div>
-                        <button 
-                          onClick={() => handleNavigation("mascots")}
+                        <button
+                          onClick={() => handleNavigation("shield")}
                           className="mt-6 w-full py-2.5 bg-emerald-300 hover:bg-emerald-400 text-xs font-black rounded-xl border-2 border-[#1e293b] cursor-pointer text-center block transition-colors"
                         >
-                          前往志工家族 🐾
+                          前往暖心後盾 🛡️
                         </button>
                       </div>
 
@@ -176,18 +165,26 @@ export default function App() {
                       {/* Card 3 */}
                       <div className="bg-white border-3 border-[#1e293b] p-6 rounded-3xl bubbly-shadow-md text-left flex flex-col justify-between hover:scale-[1.02] transition-transform">
                         <div>
-                          <span className="text-4xl block mb-4">💬</span>
-                          <h4 className="text-lg font-black text-[#1e293b] mb-2">3. AI 守護獸智能諮詢</h4>
+                          <span className="text-4xl block mb-4">💎</span>
+                          <h4 className="text-lg font-black text-[#1e293b] mb-2">3. AI 小夥伴陪你想清楚</h4>
                           <p className="text-sm font-semibold text-[#1e293b]/70 leading-relaxed">
-                            遇見權益漏報、工具危險或心理壓力？AI 家族小守護獸 24H 在線為您解答。
+                            兩種說話方式，挑一個順你當下心情的，隨時可以問。
                           </p>
                         </div>
-                        <button 
-                          onClick={() => handleNavigation("chat")}
-                          className="mt-6 w-full py-2.5 bg-sky-300 hover:bg-sky-400 text-xs font-black rounded-xl border-2 border-[#1e293b] cursor-pointer text-center block transition-colors"
-                        >
-                          開啟 AI 諮詢 💬
-                        </button>
+                        <div className="mt-6 space-y-2">
+                          {AI_PARTNERS.map((partner) => (
+                            <a
+                              key={partner.id}
+                              href={partner.url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="w-full py-2.5 bg-sky-300 hover:bg-sky-400 text-xs font-black rounded-xl border-2 border-[#1e293b] cursor-pointer text-center block transition-colors"
+                            >
+                              {partner.emoji}
+                              {partner.label}
+                            </a>
+                          ))}
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -195,9 +192,6 @@ export default function App() {
               </div>
             )}
 
-            {activeSection === "mascots" && (
-              <MascotSelector onSelectMascot={handleSelectMascotForChat} />
-            )}
 
             {activeSection === "welfare" && (
               <VolunteerWelfare />
@@ -207,13 +201,7 @@ export default function App() {
               <ShieldHub />
             )}
 
-            {activeSection === "quiz" && (
-              <RightsQuiz />
-            )}
 
-            {activeSection === "chat" && (
-              <AIConsultation initialMascotId={selectedMascotId} />
-            )}
 
             {activeSection === "report" && (
               <ReportForm />

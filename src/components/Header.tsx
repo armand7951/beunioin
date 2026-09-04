@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import { Sparkles, Heart } from "lucide-react";
+import { Heart } from "lucide-react";
 import { motion } from "motion/react";
 import { useAuth } from "../contexts/AuthContext";
 import {
@@ -18,7 +18,6 @@ export default function Header({ activeSection, onNavigate }: HeaderProps) {
   const mobileScrollState = useRef(createMobileHeaderScrollState());
   const menuItems = [
     { id: "home", label: "守護首頁", icon: "🏡" },
-    { id: "mascots", label: "志工家族", icon: "🐾" },
     { id: "welfare", label: "志工福利", icon: "🎁" },
     { id: "shield", label: "暖心後盾", icon: "🛡️" },
   ];
@@ -153,16 +152,6 @@ export default function Header({ activeSection, onNavigate }: HeaderProps) {
               登出
             </button>
           )}
-          <div className="hidden xl:flex items-center gap-2">
-          <button
-            onClick={() => onNavigate("chat")}
-            className="px-4 py-2 bg-red-400 hover:bg-red-500 text-white font-bold rounded-2xl border-3 border-[#1e293b] bubbly-shadow-lg text-sm flex items-center gap-2 cursor-pointer hover:-translate-y-0.5 active:translate-y-0 transition-transform"
-            id="header-quick-chat-btn"
-          >
-            <Sparkles className="w-4 h-4 fill-white" />
-            諮詢守護獸
-          </button>
-          </div>
         </div>
       </div>
     </header>
