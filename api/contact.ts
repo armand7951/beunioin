@@ -1,7 +1,7 @@
 import {
   buildContactEmail,
   validateContactPayload,
-} from "./lib/contact.js";
+} from "./_lib/contact.js";
 
 interface ApiRequest {
   method?: string;

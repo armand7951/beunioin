@@ -4,7 +4,7 @@ import test from "node:test";
 import {
   mapRegistrationError,
   validateRegistrationPayload,
-} from "../api/lib/registration";
+} from "../api/_lib/registration";
 
 test("registration input is trimmed and normalized", () => {
   assert.deepEqual(

@@ -1,4 +1,4 @@
-import { getSupabaseAdmin } from "../lib/supabase.js";
+import { getSupabaseAdmin } from "../_lib/supabase.js";
 
 interface ApiRequest {
   method?: string;

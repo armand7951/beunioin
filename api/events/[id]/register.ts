@@ -1,9 +1,9 @@
 import {
   mapRegistrationError,
   validateRegistrationPayload,
-} from "../../lib/registration.js";
-import { getSupabaseAdmin } from "../../lib/supabase.js";
-import { getBearerToken, getVerifiedUser } from "../../lib/auth.js";
+} from "../../_lib/registration.js";
+import { getSupabaseAdmin } from "../../_lib/supabase.js";
+import { getBearerToken, getVerifiedUser } from "../../_lib/auth.js";
 
 interface ApiRequest {
   method?: string;

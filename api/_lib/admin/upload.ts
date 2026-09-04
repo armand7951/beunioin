@@ -1,5 +1,5 @@
-import { getVerifiedUser } from "../lib/auth.js";
-import { getSupabaseAdmin } from "../lib/supabase.js";
+import { getVerifiedUser } from "../auth.js";
+import { getSupabaseAdmin } from "../supabase.js";
 
 interface ApiRequest {
   method?: string;

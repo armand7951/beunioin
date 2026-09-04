@@ -4,7 +4,7 @@ import test from "node:test";
 import {
   buildContactEmail,
   validateContactPayload,
-} from "../api/lib/contact";
+} from "../api/_lib/contact";
 import contactHandler from "../api/contact";
 
 interface CapturedResponse {
