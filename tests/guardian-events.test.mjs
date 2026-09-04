@@ -4,6 +4,8 @@ import { readFileSync } from "node:fs";
 import test from "node:test";
 
 const calendar = readFileSync("src/components/EventCalendar.tsx", "utf8");
+// 卡片本身抽成共用元件，首頁的活動區與 /events 總覽頁都用它。
+const card = readFileSync("src/components/EventCard.tsx", "utf8");
 const seed = readFileSync("supabase/seed.sql", "utf8");
 
 const approvedPosters = {
@@ -47,8 +49,8 @@ test("the July 19 event is explicitly ended", () => {
 });
 
 test("the event calendar renders status through the shared helper", () => {
-  assert.match(calendar, /getEventStatus\(ev\)/);
-  assert.match(calendar, /活動已結束/);
+  assert.match(card, /getEventStatus\(event\)/);
+  assert.match(card, /活動已結束/);
 });
 
 // 「已結束」是算出來的，不是後台手動標記的：getEventStatus 的 ended 同時看
@@ -78,8 +80,8 @@ test("the calendar opens an event page instead of a registration modal", () => {
 // 首頁的活動卡與文章卡共用 CARD_MEDIA（同高），所以這裡不再寫死長寬比 ——
 // 「不裁切」真正靠的是 object-contain，直式海報會留白但完整可見。
 test("portrait posters are shown without cropping", () => {
-  assert.match(calendar, /CARD_MEDIA/);
-  assert.match(calendar, /object-contain/);
+  assert.match(card, /CARD_MEDIA/);
+  assert.match(card, /object-contain/);
   const layout = readFileSync("src/lib/cardLayout.ts", "utf8");
   assert.match(layout, /CARD_MEDIA/);
 });
@@ -96,12 +98,43 @@ test("home cards share one layout: swipeable on phones, three across, two rows",
   assert.match(layout, /shrink-0/);
   assert.match(layout, /HOME_CARD_LIMIT = 6/);
 
+  assert.match(card, /CARD_ITEM/);
   for (const source of [calendar, news]) {
     assert.match(source, /CARD_GRID/);
-    assert.match(source, /CARD_ITEM/);
     assert.match(source, /HOME_CARD_LIMIT/);
     assert.match(source, /看更多/);
   }
+});
+
+// 首頁的「看更多」帶去總覽頁，不是原地展開 —— 原地展開會讓首頁無限拉長，
+// 而總覽頁才有搜尋與完整清單。
+test("the home sections hand off to the overview pages", () => {
+  const news = readFileSync("src/components/NewsBoard.tsx", "utf8");
+  const app = readFileSync("src/App.tsx", "utf8");
+
+  for (const source of [calendar, news]) {
+    assert.match(source, /onSeeAll/);
+    // 不該再有原地展開的殘留
+    assert.doesNotMatch(source, /setShowAll/);
+  }
+  assert.match(app, /handleNavigation\("events"\)/);
+  assert.match(app, /handleNavigation\("blog"\)/);
+});
+
+// 兩個總覽頁都要有入口，否則只能手打網址。
+test("both overview pages are reachable from the header", () => {
+  const header = readFileSync("src/components/Header.tsx", "utf8");
+  const menu = header.match(/const menuItems = \[([\s\S]*?)\n  \];/)?.[1] ?? "";
+  assert.match(menu, /id: "events"/);
+  assert.match(menu, /id: "blog"/);
+});
+
+// 總覽頁不截斷，而且卡片跟首頁同一張。
+test("the events overview lists everything with the shared card", () => {
+  const list = readFileSync("src/components/EventList.tsx", "utf8");
+  assert.match(list, /EventCard/);
+  assert.doesNotMatch(list, /HOME_CARD_LIMIT/);
+  assert.match(list, /getEventStatus\(ev\) === "ended"/);
 });
 
 test("event loading failures are visible to visitors", () => {

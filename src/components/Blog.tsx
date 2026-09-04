@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { ArrowLeft, CalendarDays, FileText, Loader2, User } from "lucide-react";
+import { CARD_MEDIA } from "../lib/cardLayout";
 
 interface PostSummary {
   id: string;
@@ -100,16 +101,18 @@ export function BlogList({ onOpen }: { onOpen: (id: string) => void }) {
               <button
                 key={post.id}
                 onClick={() => onOpen(post.id)}
-                className="text-left bg-white border-3 border-[#1e293b] rounded-2xl overflow-hidden hover:-translate-y-1 transition-transform"
+                className="text-left bg-white border-3 border-[#1e293b] rounded-[2rem] overflow-hidden bubbly-shadow-md hover:-translate-y-1 transition-transform flex flex-col"
               >
                 {post.coverImageUrl ? (
+                  <div className={CARD_MEDIA}>
                   <img
                     src={post.coverImageUrl}
                     alt=""
-                    className="w-full h-44 object-cover border-b-3 border-[#1e293b]"
+                    className="w-full h-full object-cover"
                   />
+                  </div>
                 ) : (
-                  <div className="w-full h-44 bg-slate-100 border-b-3 border-[#1e293b] flex items-center justify-center">
+                  <div className={`${CARD_MEDIA} flex items-center justify-center`}>
                     <FileText className="w-10 h-10 text-slate-300" />
                   </div>
                 )}

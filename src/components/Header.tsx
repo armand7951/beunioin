@@ -18,6 +18,8 @@ export default function Header({ activeSection, onNavigate }: HeaderProps) {
   const mobileScrollState = useRef(createMobileHeaderScrollState());
   const menuItems = [
     { id: "home", label: "守護首頁", icon: "🏡" },
+    { id: "events", label: "工會活動", icon: "🗓️" },
+    { id: "blog", label: "工會文章", icon: "📰" },
     { id: "welfare", label: "志工福利", icon: "🎁" },
     { id: "shield", label: "暖心後盾", icon: "🛡️" },
   ];

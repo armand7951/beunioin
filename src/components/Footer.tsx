@@ -39,6 +39,16 @@ export default function Footer({ onNavigate }: FooterProps) {
         <div className="md:col-span-3">
           <h5 className="font-black text-sm uppercase tracking-widest text-white/50 mb-6">更多服務</h5>
           <ul className="space-y-3 text-sm font-bold">
+            <li>
+              <button onClick={() => onNavigate("events")} className="hover:text-amber-400 transition-colors text-left cursor-pointer">
+                🗓️ 工會活動總覽
+              </button>
+            </li>
+            <li>
+              <button onClick={() => onNavigate("blog")} className="hover:text-amber-400 transition-colors text-left cursor-pointer">
+                📰 工會文章總覽
+              </button>
+            </li>
             {AI_PARTNERS.map((partner) => (
               <li key={partner.id}>
                 <a

@@ -3,8 +3,7 @@ import { motion } from "motion/react";
 import {
   AlertTriangle,
   Calendar,
-  ChevronDown,
-  ChevronRight,
+  ArrowRight,
   Clock,
   Loader2,
   MapPin,
@@ -12,8 +11,9 @@ import {
   Users,
 } from "lucide-react";
 import { useAuth } from "../contexts/AuthContext";
-import { getEventStatus, type EventStatus } from "../lib/eventStatus";
-import { CARD_GRID, CARD_ITEM, CARD_MEDIA, HOME_CARD_LIMIT } from "../lib/cardLayout";
+import { getEventStatus } from "../lib/eventStatus";
+import { CARD_GRID, HOME_CARD_LIMIT } from "../lib/cardLayout";
+import EventCard from "./EventCard";
 
 export interface EventItem {
   id: string;
@@ -32,27 +32,23 @@ export interface EventItem {
   lifecycleStatus?: "scheduled" | "ended" | "cancelled";
 }
 
-const statusLabels: Record<EventStatus, string> = {
-  ended: "活動已結束",
-  full: "報名已額滿",
-  closed: "目前未開放報名",
-  open: "開放報名中",
-};
-
 export default function EventCalendar({
   onRefreshTrigger,
   onOpenEvent,
+  onSeeAll,
 }: {
   onRefreshTrigger?: number;
   // 點活動由 App 決定去哪 —— 跟公佈欄一樣，元件不自己管路由。
   onOpenEvent: (id: string) => void;
+  // 「看更多」帶去 /events 總覽頁，而不是在首頁原地展開 —— 總覽頁有搜尋與
+  // 完整清單，原地展開會讓首頁無限拉長。
+  onSeeAll: () => void;
 }) {
   const [events, setEvents] = useState<EventItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState("");
   const [imageFailures, setImageFailures] = useState<Set<string>>(new Set());
   const [tab, setTab] = useState<"ongoing" | "ended">("ongoing");
-  const [showAll, setShowAll] = useState(false);
 
   const fetchEvents = async () => {
     setLoadError("");
@@ -78,7 +74,7 @@ export default function EventCalendar({
   const ended = events.filter((ev) => getEventStatus(ev) === "ended");
   const inTab = tab === "ongoing" ? ongoing : ended;
   // 跟公佈欄一樣，首頁只放兩排。
-  const shown = showAll ? inTab : inTab.slice(0, HOME_CARD_LIMIT);
+  const shown = inTab.slice(0, HOME_CARD_LIMIT);
   const hiddenCount = inTab.length - shown.length;
 
   return (
@@ -103,7 +99,7 @@ export default function EventCalendar({
           ).map(([key, label, count]) => (
             <button
               key={key}
-              onClick={() => { setTab(key); setShowAll(false); }}
+              onClick={() => setTab(key)}
               aria-current={tab === key ? "page" : undefined}
               className={`px-5 py-2.5 rounded-full font-black text-sm border-2 border-[#1e293b] transition-colors ${
                 tab === key ? "bg-[#1e293b] text-white" : "bg-white text-slate-500 hover:bg-slate-50"
@@ -138,69 +134,20 @@ export default function EventCalendar({
           </div>
         ) : (
           <div className={CARD_GRID}>
-            {shown.map((ev, index) => {
-              const status = getEventStatus(ev);
-              const availableSeats = ev.maxSeats - ev.registeredCount;
-              return (
-                <motion.article
-                  key={ev.id}
-                  initial={{ opacity: 0, y: 18 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: index * 0.06 }}
-className={`${CARD_ITEM} bg-white border-3 border-[#1e293b] rounded-[2rem] overflow-hidden bubbly-shadow-md flex flex-col`}
-                  id={`event-card-${ev.id}`}
-                >
-                  <div className={`${CARD_MEDIA} relative flex items-center justify-center`}>
-                    {ev.imageUrl && !imageFailures.has(ev.id) ? (
-                      <img
-                        src={ev.imageUrl}
-                        alt={`${ev.title} 活動海報`}
-                        className="w-full h-full object-contain"
-                        onError={() => setImageFailures((current) => new Set(current).add(ev.id))}
-                      />
-                    ) : (
-                      <p className="px-6 text-center text-sm font-black text-slate-500">活動海報暫時無法顯示</p>
-                    )}
-                    <span className={`absolute top-3 right-3 px-3 py-1 rounded-full border-2 border-[#1e293b] text-xs font-black ${
-                      status === "open" ? "bg-emerald-500 text-white" : status === "ended" ? "bg-slate-700 text-white" : "bg-amber-400"
-                    }`}>
-                      {statusLabels[status]}
-                    </span>
-                  </div>
-                  <div className="p-6 flex-1 space-y-4">
-                    <h3 className="text-xl font-black">{ev.title}</h3>
-                    <div className="space-y-2 text-xs font-bold text-slate-600">
-                      <p className="flex gap-2"><Calendar className="w-4 h-4 text-emerald-600" />{ev.date}</p>
-                      <p className="flex gap-2"><Clock className="w-4 h-4 text-emerald-600" />{ev.time}</p>
-                      <p className="flex gap-2"><MapPin className="w-4 h-4 text-indigo-600 shrink-0" />{ev.location}</p>
-                      {ev.lecturer && <p className="flex gap-2"><User className="w-4 h-4 text-amber-600 shrink-0" />{ev.lecturer}</p>}
-                    </div>
-                    <p className="text-sm font-semibold leading-relaxed text-slate-600">{ev.description}</p>
-                  </div>
-                  <div className="p-5 border-t flex flex-col sm:flex-row justify-between items-center gap-3 bg-slate-50">
-                    <p className="text-xs font-black flex gap-2"><Users className="w-4 h-4 text-emerald-600" />已報名 {ev.registeredCount} / {ev.maxSeats}（剩 {Math.max(0, availableSeats)}）</p>
-                    <button
-                      onClick={() => onOpenEvent(ev.id)}
-                      className="w-full sm:w-auto px-5 py-2.5 bg-emerald-600 text-white rounded-xl border-2 border-[#1e293b] text-xs font-black flex justify-center items-center gap-1"
-                    >
-                      {status === "open" ? "查看詳情並報名" : "查看活動詳情"}
-                      <ChevronRight className="w-4 h-4" />
-                    </button>
-                  </div>
-                </motion.article>
-              );
-            })}
+            {shown.map((ev, index) => (
+              <EventCard key={ev.id} event={ev} index={index} onOpen={onOpenEvent} />
+            ))}
           </div>
         ))}
 
-        {hiddenCount > 0 && !showAll && (
+        {hiddenCount > 0 && (
           <div className="mt-8 text-center">
             <button
-              onClick={() => setShowAll(true)}
+              onClick={onSeeAll}
               className="inline-flex items-center gap-2 px-6 py-3 bg-white hover:bg-slate-50 border-3 border-[#1e293b] rounded-2xl font-black text-sm bubbly-shadow-md transition-colors"
             >
               看更多活動（還有 {hiddenCount} 場）
-              <ChevronDown className="w-4 h-4" />
+              <ArrowRight className="w-4 h-4" />
             </button>
           </div>
         )}

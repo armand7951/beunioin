@@ -9,7 +9,6 @@ import {
   X, 
   Clock, 
   AlertCircle,
-  ChevronDown
 } from "lucide-react";
 import { type NewsItem } from "../data/news";
 import { CARD_GRID, CARD_ITEM, CARD_MEDIA, HOME_CARD_LIMIT } from "../lib/cardLayout";
@@ -20,6 +19,8 @@ interface NewsBoardProps {
   onNavigateToAdmin?: () => void;
   // 點文章由 App 決定要去哪 —— 公佈欄不自己管路由。
   onOpenPost: (id: string) => void;
+  // 「看更多」帶去 /blog 總覽頁，而不是在首頁原地展開。
+  onSeeAll: () => void;
 }
 
 // 後台的 post 轉成公佈欄卡片要的形狀。content 這裡用不到（點進去才讀內頁），
@@ -47,12 +48,11 @@ function toNewsItem(post: ApiPost): NewsItem {
   };
 }
 
-export default function NewsBoard({ onNavigateToAdmin, onOpenPost }: NewsBoardProps) {
+export default function NewsBoard({ onNavigateToAdmin, onOpenPost, onSeeAll }: NewsBoardProps) {
   const [news, setNews] = useState<NewsItem[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [selectedCategory, setSelectedCategory] = useState<string>("全部");
-  const [showAll, setShowAll] = useState(false);
 
   useEffect(() => {
     const fetchNews = async () => {
@@ -99,7 +99,7 @@ export default function NewsBoard({ onNavigateToAdmin, onOpenPost }: NewsBoardPr
   });
 
   // 首頁只放兩排；其餘收在「看更多」後面，避免公佈欄把整頁吃掉。
-  const visibleNews = showAll ? sortedNews : sortedNews.slice(0, HOME_CARD_LIMIT);
+  const visibleNews = sortedNews.slice(0, HOME_CARD_LIMIT);
   const hiddenCount = sortedNews.length - visibleNews.length;
 
   const getCategoryStyles = (category: string) => {
@@ -276,14 +276,14 @@ export default function NewsBoard({ onNavigateToAdmin, onOpenPost }: NewsBoardPr
           </div>
         )}
 
-        {hiddenCount > 0 && !showAll && (
+        {hiddenCount > 0 && (
           <div className="mt-8 text-center">
             <button
-              onClick={() => setShowAll(true)}
+              onClick={onSeeAll}
               className="inline-flex items-center gap-2 px-6 py-3 bg-white hover:bg-slate-50 border-3 border-[#1e293b] rounded-2xl font-black text-sm bubbly-shadow-md transition-colors"
             >
               看更多文章（還有 {hiddenCount} 篇）
-              <ChevronDown className="w-4 h-4" />
+              <ArrowRight className="w-4 h-4" />
             </button>
           </div>
         )}

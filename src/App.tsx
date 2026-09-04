@@ -9,6 +9,7 @@ import NewsBoard from "./components/NewsBoard";
 import EventCalendar from "./components/EventCalendar";
 import { BlogList, BlogPost } from "./components/Blog";
 import EventDetail from "./components/EventDetail";
+import EventList from "./components/EventList";
 
 // 後台（含 TipTap 編輯器）約佔 450KB，只有管理員會用到。用 lazy 切出去，
 // 一般訪客的首頁就不必為了一個他們進不去的頁面多下載半個 MB。
@@ -31,7 +32,7 @@ export default function App() {
     const handleLocationChange = () => {
       const pathName = window.location.pathname;
       const path = pathName.replace(/^\/+|\/+$/g, "");
-      const validSections = ["home", "welfare", "shield", "report", "admin", "auth", "member", "reset-password", "blog"];
+      const validSections = ["home", "welfare", "shield", "report", "admin", "auth", "member", "reset-password", "blog", "events"];
 
       // 帶參數的路徑要在比對固定清單之前先攔下來。
       if (path.startsWith("blog/")) {
@@ -113,12 +114,16 @@ export default function App() {
                 <Hero onNavigate={handleNavigation} />
                 
                 {/* Interactive Event Calendar & Volunteer Sign Up */}
-                <EventCalendar onOpenEvent={(id) => handleNavigation(`events/${id}`)} />
+                <EventCalendar
+                  onOpenEvent={(id) => handleNavigation(`events/${id}`)}
+                  onSeeAll={() => handleNavigation("events")}
+                />
 
                 {/* Dynamic Activities News Board Section */}
                 <NewsBoard
                   onNavigateToAdmin={() => handleNavigation("admin")}
                   onOpenPost={(id) => handleNavigation(`blog/${id}`)}
+                  onSeeAll={() => handleNavigation("blog")}
                 />
                 
                 {/* Home Page Highlights & Portals */}
@@ -211,12 +216,16 @@ export default function App() {
               <BlogList onOpen={(id) => handleNavigation(`blog/${id}`)} />
             )}
 
+            {activeSection === "events" && (
+              <EventList onOpen={(id) => handleNavigation(`events/${id}`)} />
+            )}
+
             {activeSection === "blog-post" && postId && (
               <BlogPost id={postId} onBack={() => handleNavigation("blog")} />
             )}
 
             {activeSection === "event-detail" && eventId && (
-              <EventDetail id={eventId} onBack={() => handleNavigation("home")} />
+              <EventDetail id={eventId} onBack={() => handleNavigation("events")} />
             )}
 
             {activeSection === "admin" && (
