@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import { Heart } from "lucide-react";
+import { Heart, Menu, X } from "lucide-react";
 import { motion } from "motion/react";
 import { useAuth } from "../contexts/AuthContext";
 import {
@@ -16,6 +16,7 @@ export default function Header({ activeSection, onNavigate }: HeaderProps) {
   const { user, signOut, isAdmin } = useAuth();
   const [isMobileCollapsed, setIsMobileCollapsed] = useState(false);
   const mobileScrollState = useRef(createMobileHeaderScrollState());
+  const [menuOpen, setMenuOpen] = useState(false);
   const menuItems = [
     { id: "home", label: "守護首頁", icon: "🏡" },
     { id: "events", label: "工會活動", icon: "🗓️" },
@@ -46,7 +47,7 @@ export default function Header({ activeSection, onNavigate }: HeaderProps) {
 
   return (
     <header
-      className={`sticky top-0 z-50 w-full px-4 bg-[#fdfbf7]/95 backdrop-blur-md border-b-4 border-[#1e293b] transition-[padding] duration-200 motion-reduce:transition-none lg:py-3 ${
+      className={`sticky top-0 z-50 w-full px-4 relative bg-[#fdfbf7]/95 backdrop-blur-md border-b-4 border-[#1e293b] transition-[padding] duration-200 motion-reduce:transition-none lg:py-3 ${
         isMobileCollapsed ? "py-1.5" : "py-3"
       }`}
     >
@@ -77,60 +78,38 @@ export default function Header({ activeSection, onNavigate }: HeaderProps) {
           </div>
         </button>
 
-        {/* Bouncy Navigation Links */}
-        <div
-          className={`mobile-header-expandable relative w-full lg:w-auto overflow-hidden lg:overflow-visible flex-1 lg:flex-initial transition-[max-height,opacity,transform] duration-200 motion-reduce:transition-none lg:max-h-none lg:opacity-100 lg:pointer-events-auto lg:translate-y-0 ${
-            isMobileCollapsed
-              ? "max-h-0 opacity-0 pointer-events-none -translate-y-2"
-              : "max-h-28 opacity-100 translate-y-0"
-          }`}
-        >
-          {/* Mobile Swipe Hint */}
-          <div className="flex lg:hidden items-center justify-center gap-1.5 text-[10px] font-black text-amber-600/90 mb-1 animate-pulse bg-amber-500/5 py-0.5 px-3 rounded-full w-max mx-auto border border-amber-500/10">
-            <span>👈 左右滑動選單 👉</span>
-          </div>
+        {/* 桌機：橫向導覽 */}
+        <nav className="hidden lg:flex items-center gap-2" id="main-navigation">
+          {menuItems.map((item) => {
+            const isActive = activeSection === item.id;
+            return (
+              <button
+                key={item.id}
+                id={`nav-${item.id}`}
+                onClick={() => onNavigate(item.id)}
+                className={`relative px-2.5 py-2 rounded-xl text-xs xl:text-sm font-bold transition-all duration-200 flex items-center gap-1 cursor-pointer border-2 shrink-0 active:scale-95 ${
+                  isActive
+                    ? "bg-amber-300 border-[#1e293b] text-[#1e293b] shadow-[2px_2px_0px_0px_#1e293b] -translate-y-0.5"
+                    : "border-transparent text-[#1e293b]/80 hover:text-[#1e293b] hover:bg-amber-100/50 hover:border-[#1e293b]/30"
+                }`}
+              >
+                <span>{item.icon}</span>
+                <span>{item.label}</span>
+                {isActive && (
+                  <motion.span
+                    layoutId="header-active-pill"
+                    className="absolute -top-1 -right-1 text-[8px] bg-red-400 text-white rounded-full px-1 py-0.2 font-bold scale-75 border border-[#1e293b]"
+                  >
+                    ON
+                  </motion.span>
+                )}
+              </button>
+            );
+          })}
+        </nav>
 
-          {/* Left/Right scroll indicators (gradient shades) */}
-          <div className="absolute lg:hidden left-0 bottom-1.5 top-auto h-[38px] w-6 bg-gradient-to-r from-[#fdfbf7] to-transparent pointer-events-none z-10" />
-          <div className="absolute lg:hidden right-0 bottom-1.5 top-auto h-[38px] w-6 bg-gradient-to-l from-[#fdfbf7] to-transparent pointer-events-none z-10" />
-
-          <nav className="flex items-center gap-1 sm:gap-1.5 md:gap-2 overflow-x-auto lg:overflow-visible flex-nowrap w-full lg:w-auto justify-start lg:justify-center px-4 lg:px-0 py-1.5 whitespace-nowrap scrollbar-none snap-x snap-mandatory lg:snap-none scroll-smooth" id="main-navigation">
-            {menuItems.map((item) => {
-              const isActive = activeSection === item.id;
-              return (
-                <button
-                  key={item.id}
-                  id={`nav-${item.id}`}
-                  onClick={() => onNavigate(item.id)}
-                  className={`relative px-2 py-1.5 sm:px-2.5 sm:py-2 rounded-xl text-xs xl:text-sm font-bold transition-all duration-200 flex items-center gap-1 cursor-pointer border-2 shrink-0 snap-start active:scale-95 ${
-                    isActive
-                      ? "bg-amber-300 border-[#1e293b] text-[#1e293b] shadow-[2px_2px_0px_0px_#1e293b] -translate-y-0.5"
-                      : "border-transparent text-[#1e293b]/80 hover:text-[#1e293b] hover:bg-amber-100/50 hover:border-[#1e293b]/30"
-                  }`}
-                >
-                  <span>{item.icon}</span>
-                  <span>{item.label}</span>
-                  {isActive && (
-                    <motion.span
-                      layoutId="header-active-pill"
-                      className="absolute -top-1 -right-1 text-[8px] bg-red-400 text-white rounded-full px-1 py-0.2 font-bold scale-75 border border-[#1e293b]"
-                    >
-                      ON
-                    </motion.span>
-                  )}
-                </button>
-              );
-            })}
-          </nav>
-        </div>
-
-        <div
-          className={`mobile-header-expandable flex items-center gap-2 shrink-0 overflow-hidden lg:overflow-visible transition-[max-height,opacity,transform] duration-200 motion-reduce:transition-none lg:max-h-none lg:opacity-100 lg:pointer-events-auto lg:translate-y-0 ${
-            isMobileCollapsed
-              ? "max-h-0 opacity-0 pointer-events-none -translate-y-2"
-              : "max-h-20 opacity-100 translate-y-0"
-          }`}
-        >
+        {/* 桌機：帳號相關 */}
+        <div className="hidden lg:flex items-center gap-2 shrink-0">
           {isAdmin && (
             <button
               onClick={() => onNavigate("admin")}
@@ -155,7 +134,81 @@ export default function Header({ activeSection, onNavigate }: HeaderProps) {
             </button>
           )}
         </div>
+
+        {/* 手機：漢堡鈕。原本是一條要橫向捲動的選單列，還得在上面掛一行提示
+            使用者「可以滑」才看得懂；改成標準抽屜後，項目一眼全在。 */}
+        <button
+          type="button"
+          onClick={() => setMenuOpen((open) => !open)}
+          aria-expanded={menuOpen}
+          aria-controls="mobile-menu"
+          aria-label={menuOpen ? "關閉選單" : "開啟選單"}
+          id="mobile-menu-toggle"
+          className="lg:hidden absolute right-4 top-1/2 -translate-y-1/2 p-2 rounded-xl border-2 border-[#1e293b] bg-white active:scale-95 transition-transform"
+        >
+          {menuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+        </button>
       </div>
+
+      {/* 手機抽屜 */}
+      {menuOpen && (
+        <div
+          id="mobile-menu"
+          className="lg:hidden mt-3 pt-3 border-t-2 border-[#1e293b]/10 flex flex-col gap-1.5"
+        >
+          {menuItems.map((item) => (
+            <button
+              key={item.id}
+              onClick={() => {
+                onNavigate(item.id);
+                setMenuOpen(false);
+              }}
+              className={`flex items-center gap-2 px-4 py-3 rounded-xl text-sm font-black border-2 text-left transition-colors ${
+                activeSection === item.id
+                  ? "bg-amber-300 border-[#1e293b]"
+                  : "bg-white border-slate-200 text-[#1e293b]/80"
+              }`}
+            >
+              <span>{item.icon}</span>
+              {item.label}
+            </button>
+          ))}
+
+          <div className="flex flex-wrap gap-2 pt-2">
+            {isAdmin && (
+              <button
+                onClick={() => {
+                  onNavigate("admin");
+                  setMenuOpen(false);
+                }}
+                className="flex-1 px-3 py-3 bg-amber-300 border-2 border-[#1e293b] rounded-xl text-xs font-black"
+              >
+                管理後台
+              </button>
+            )}
+            <button
+              onClick={() => {
+                onNavigate(user ? "member" : "auth");
+                setMenuOpen(false);
+              }}
+              className="flex-1 px-3 py-3 bg-emerald-600 text-white border-2 border-[#1e293b] rounded-xl text-xs font-black"
+            >
+              {user ? "會員中心" : "登入／註冊"}
+            </button>
+            {user && (
+              <button
+                onClick={() => {
+                  void signOut();
+                  setMenuOpen(false);
+                }}
+                className="flex-1 px-3 py-3 bg-white border-2 border-[#1e293b] rounded-xl text-xs font-black"
+              >
+                登出
+              </button>
+            )}
+          </div>
+        </div>
+      )}
     </header>
   );
 }

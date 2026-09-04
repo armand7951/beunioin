@@ -121,7 +121,6 @@ export default function App() {
 
                 {/* Dynamic Activities News Board Section */}
                 <NewsBoard
-                  onNavigateToAdmin={() => handleNavigation("admin")}
                   onOpenPost={(id) => handleNavigation(`blog/${id}`)}
                   onSeeAll={() => handleNavigation("blog")}
                 />

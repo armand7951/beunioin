@@ -20,14 +20,28 @@ test("the Header keeps only primary destinations", () => {
   assert.doesNotMatch(header, /守護獸/);
 });
 
-test("desktop Header navigation does not use horizontal scrolling", () => {
-  const navigationClass =
-    header.match(/<nav className="([^"]+)"/)?.[1] ?? "";
-  const gradientCount = header.match(/lg:hidden[^"]*bg-gradient-to-/g)?.length ?? 0;
+// 行動版原本是一條要左右滑的選單列（還得配一行「左右滑動選單」的提示才知道
+// 能滑），改成標準漢堡抽屜。桌機維持原本的橫向導覽。
+test("navigation is a drawer on phones and a row on desktop", () => {
+  assert.match(header, /id="mobile-menu-toggle"/);
+  assert.match(header, /id="mobile-menu"/);
+  assert.match(header, /aria-expanded=\{menuOpen\}/);
+  assert.match(header, /aria-controls="mobile-menu"/);
 
-  assert.match(navigationClass, /lg:overflow-visible/);
-  assert.match(navigationClass, /lg:snap-none/);
-  assert.equal(gradientCount, 2);
+  // 桌機那條 nav 不再需要任何橫向捲動的補救措施
+  assert.doesNotMatch(header, /overflow-x-auto/);
+  assert.doesNotMatch(header, /snap-mandatory/);
+  assert.doesNotMatch(header, /左右滑動選單/);
+  assert.doesNotMatch(header, /bg-gradient-to-/);
+
+  const navigationClass = header.match(/<nav className="([^"]+)"/)?.[1] ?? "";
+  assert.match(navigationClass, /hidden lg:flex/);
+});
+
+// 選單項目按下去要順手關掉抽屜，否則點完還蓋在內容上。
+test("the drawer closes after navigating", () => {
+  const drawer = header.match(/id="mobile-menu"([\s\S]*?)\n    <\/header>/)?.[1] ?? header;
+  assert.match(drawer, /setMenuOpen\(false\)/);
 });
 
 test("the Footer exposes only the three secondary services", () => {

@@ -77,14 +77,12 @@ test("desktop always returns an expanded state", () => {
   assert.equal(next.direction, null);
 });
 
-test("Header connects mobile scroll state without hiding desktop controls", () => {
+// 導覽改成抽屜後，捲動縮起來的對象只剩下標題列本身（logo 與上下留白），
+// 不再是整條選單，所以這裡不再檢查那組 mobile-header-expandable 的 class。
+test("Header still shrinks itself while scrolling on phones", () => {
   assert.match(header, /createMobileHeaderScrollState/);
   assert.match(header, /updateMobileHeaderScroll/);
   assert.match(header, /addEventListener\("scroll", handleScroll, \{ passive: true \}\)/);
   assert.match(header, /addEventListener\("resize", handleScroll\)/);
-  assert.match(header, /mobile-header-expandable/);
-  assert.match(
-    header,
-    /lg:max-h-none lg:opacity-100 lg:pointer-events-auto lg:translate-y-0/,
-  );
+  assert.match(header, /isMobileCollapsed \? "h-10" : "h-12"/);
 });

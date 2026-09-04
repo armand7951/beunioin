@@ -16,7 +16,6 @@ import { CARD_GRID, CARD_ITEM, CARD_MEDIA, HOME_CARD_LIMIT } from "../lib/cardLa
 export type { NewsItem } from "../data/news";
 
 interface NewsBoardProps {
-  onNavigateToAdmin?: () => void;
   // 點文章由 App 決定要去哪 —— 公佈欄不自己管路由。
   onOpenPost: (id: string) => void;
   // 「看更多」帶去 /blog 總覽頁，而不是在首頁原地展開。
@@ -48,7 +47,7 @@ function toNewsItem(post: ApiPost): NewsItem {
   };
 }
 
-export default function NewsBoard({ onNavigateToAdmin, onOpenPost, onSeeAll }: NewsBoardProps) {
+export default function NewsBoard({ onOpenPost, onSeeAll }: NewsBoardProps) {
   const [news, setNews] = useState<NewsItem[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [searchQuery, setSearchQuery] = useState<string>("");
@@ -132,15 +131,6 @@ export default function NewsBoard({ onNavigateToAdmin, onOpenPost, onSeeAll }: N
               即時追蹤台灣環境共生工會的第一手活動紀錄、重要公告與深度知識分享。
             </p>
           </div>
-
-          {onNavigateToAdmin && (
-            <button
-              onClick={onNavigateToAdmin}
-              className="px-4 py-2 bg-amber-100 hover:bg-amber-200 text-[#1e293b] text-xs font-black rounded-xl border-2 border-[#1e293b] bubbly-shadow-sm flex items-center gap-1.5 transition-transform hover:-translate-y-0.5 cursor-pointer"
-            >
-              ⚙️ 進入後台管理
-            </button>
-          )}
         </div>
 
         {/* Filter & Search Bar */}
