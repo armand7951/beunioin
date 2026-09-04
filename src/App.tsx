@@ -10,6 +10,7 @@ import ReportForm from "./components/ReportForm";
 import NewsBoard from "./components/NewsBoard";
 import EventCalendar from "./components/EventCalendar";
 import { BlogList, BlogPost } from "./components/Blog";
+import EventDetail from "./components/EventDetail";
 
 // 後台（含 TipTap 編輯器）約佔 450KB，只有管理員會用到。用 lazy 切出去，
 // 一般訪客的首頁就不必為了一個他們進不去的頁面多下載半個 MB。
@@ -26,6 +27,7 @@ export default function App() {
   const [selectedMascotId, setSelectedMascotId] = useState("animal");
   // 文章內頁的代碼。其餘頁面都是固定字串路徑，只有 /blog/<代碼> 帶參數。
   const [postId, setPostId] = useState<string | null>(null);
+  const [eventId, setEventId] = useState<string | null>(null);
 
   useEffect(() => {
     // Read and parse URL pathname routing (clean URLs)
@@ -34,17 +36,28 @@ export default function App() {
       const path = pathName.replace(/^\/+|\/+$/g, "");
       const validSections = ["home", "mascots", "welfare", "shield", "quiz", "chat", "report", "admin", "auth", "member", "reset-password", "blog"];
 
-      // /blog/<代碼> 是唯一帶參數的路徑，要在比對固定清單之前先攔下來。
+      // 帶參數的路徑要在比對固定清單之前先攔下來。
       if (path.startsWith("blog/")) {
         const slug = path.slice("blog/".length);
         if (slug) {
           setPostId(decodeURIComponent(slug));
+          setEventId(null);
           setActiveSection("blog-post");
+          return;
+        }
+      }
+      if (path.startsWith("events/")) {
+        const slug = path.slice("events/".length);
+        if (slug) {
+          setEventId(decodeURIComponent(slug));
+          setPostId(null);
+          setActiveSection("event-detail");
           return;
         }
       }
 
       setPostId(null);
+      setEventId(null);
       if (validSections.includes(path)) {
         setActiveSection(path);
       } else if (path === "") {
@@ -111,7 +124,7 @@ export default function App() {
                 <Hero onNavigate={handleNavigation} />
                 
                 {/* Interactive Event Calendar & Volunteer Sign Up */}
-                <EventCalendar />
+                <EventCalendar onOpenEvent={(id) => handleNavigation(`events/${id}`)} />
 
                 {/* Dynamic Activities News Board Section */}
                 <NewsBoard
@@ -212,6 +225,10 @@ export default function App() {
 
             {activeSection === "blog-post" && postId && (
               <BlogPost id={postId} onBack={() => handleNavigation("blog")} />
+            )}
+
+            {activeSection === "event-detail" && eventId && (
+              <EventDetail id={eventId} onBack={() => handleNavigation("home")} />
             )}
 
             {activeSection === "admin" && (

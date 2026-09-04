@@ -49,7 +49,30 @@ test("the July 19 event is explicitly ended", () => {
 test("the event calendar renders status through the shared helper", () => {
   assert.match(calendar, /getEventStatus\(ev\)/);
   assert.match(calendar, /活動已結束/);
-  assert.match(calendar, /disabled=\{status !== "open"\}/);
+});
+
+// 「已結束」是算出來的，不是後台手動標記的：getEventStatus 的 ended 同時看
+// lifecycleStatus 與 endsAt，所以活動時間一過就自己歸到已結束那一組，不需排程。
+test("events fall into the ended tab on their own once they finish", () => {
+  assert.match(calendar, /getEventStatus\(ev\) !== "ended"/);
+  assert.match(calendar, /getEventStatus\(ev\) === "ended"/);
+  assert.match(calendar, /進行中/);
+  assert.match(calendar, /已結束/);
+
+  const status = readFileSync("src/lib/eventStatus.ts", "utf8");
+  assert.match(status, /new Date\(event\.endsAt\)\.getTime\(\) <= now\.getTime\(\)/);
+});
+
+// 點活動要進到該活動的頁面，報名表在那裡，不再是卡片上的彈窗。
+test("the calendar opens an event page instead of a registration modal", () => {
+  assert.match(calendar, /onOpenEvent/);
+  assert.doesNotMatch(calendar, /setSelectedEvent/);
+  assert.doesNotMatch(calendar, /fixed inset-0/);
+
+  const detail = readFileSync("src/components/EventDetail.tsx", "utf8");
+  assert.match(detail, /\/api\/events\/\$\{event\.id\}\/register/);
+  // 報名表單只在可報名時出現，其餘狀態顯示原因而不是給一張送不出去的表。
+  assert.match(detail, /status !== "open"/);
 });
 
 test("portrait posters are shown without cropping", () => {

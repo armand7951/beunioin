@@ -40,21 +40,19 @@ const statusLabels: Record<EventStatus, string> = {
   open: "開放報名中",
 };
 
-export default function EventCalendar({ onRefreshTrigger }: { onRefreshTrigger?: number }) {
-  const { session, user, profile } = useAuth();
+export default function EventCalendar({
+  onRefreshTrigger,
+  onOpenEvent,
+}: {
+  onRefreshTrigger?: number;
+  // 點活動由 App 決定去哪 —— 跟公佈欄一樣，元件不自己管路由。
+  onOpenEvent: (id: string) => void;
+}) {
   const [events, setEvents] = useState<EventItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState("");
-  const [selectedEvent, setSelectedEvent] = useState<EventItem | null>(null);
-  const [regName, setRegName] = useState("");
-  const [regEmail, setRegEmail] = useState("");
-  const [regPhone, setRegPhone] = useState("");
-  const [regType, setRegType] = useState("animal");
-  const [regNotes, setRegNotes] = useState("");
-  const [submitting, setSubmitting] = useState(false);
-  const [submitSuccess, setSubmitSuccess] = useState(false);
-  const [submitError, setSubmitError] = useState("");
   const [imageFailures, setImageFailures] = useState<Set<string>>(new Set());
+  const [tab, setTab] = useState<"ongoing" | "ended">("ongoing");
 
   const fetchEvents = async () => {
     setLoadError("");
@@ -74,49 +72,11 @@ export default function EventCalendar({ onRefreshTrigger }: { onRefreshTrigger?:
     void fetchEvents();
   }, [onRefreshTrigger]);
 
-  const openRegistration = (event: EventItem) => {
-    setSelectedEvent(event);
-    setRegName(profile?.full_name ?? "");
-    setRegEmail(user?.email ?? "");
-    setRegPhone(profile?.phone ?? "");
-    setRegType("animal");
-    setRegNotes("");
-    setSubmitSuccess(false);
-    setSubmitError("");
-  };
-
-  const submitRegistration = async (event: React.FormEvent) => {
-    event.preventDefault();
-    if (!selectedEvent) return;
-    setSubmitting(true);
-    setSubmitError("");
-    try {
-      const response = await fetch(`/api/events/${selectedEvent.id}/register`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          ...(session?.access_token
-            ? { Authorization: `Bearer ${session.access_token}` }
-            : {}),
-        },
-        body: JSON.stringify({
-          name: regName,
-          email: regEmail,
-          phone: regPhone,
-          volunteerType: regType,
-          notes: regNotes,
-        }),
-      });
-      const body = await response.json();
-      if (!response.ok) throw new Error(body.error);
-      setSubmitSuccess(true);
-      void fetchEvents();
-    } catch (caught) {
-      setSubmitError(caught instanceof Error ? caught.message : "報名失敗，請稍候重試。");
-    } finally {
-      setSubmitting(false);
-    }
-  };
+  // 「已結束」不是靠後台手動標記 —— getEventStatus 的 ended 同時看
+  // lifecycleStatus 與 endsAt，所以活動時間一過就自己歸到已結束那一組。
+  const ongoing = events.filter((ev) => getEventStatus(ev) !== "ended");
+  const ended = events.filter((ev) => getEventStatus(ev) === "ended");
+  const shown = tab === "ongoing" ? ongoing : ended;
 
   return (
     <section className="py-16 bg-[#faf8f4] border-t-4 border-[#1e293b]" id="activities-calendar-section">
@@ -131,6 +91,33 @@ export default function EventCalendar({ onRefreshTrigger }: { onRefreshTrigger?:
           </p>
         </div>
 
+        <div className="flex justify-center gap-2 mb-8">
+          {(
+            [
+              ["ongoing", "進行中", ongoing.length],
+              ["ended", "已結束", ended.length],
+            ] as const
+          ).map(([key, label, count]) => (
+            <button
+              key={key}
+              onClick={() => setTab(key)}
+              aria-current={tab === key ? "page" : undefined}
+              className={`px-5 py-2.5 rounded-full font-black text-sm border-2 border-[#1e293b] transition-colors ${
+                tab === key ? "bg-[#1e293b] text-white" : "bg-white text-slate-500 hover:bg-slate-50"
+              }`}
+            >
+              {label}
+              <span
+                className={`ml-2 px-2 py-0.5 rounded-full text-xs ${
+                  tab === key ? "bg-white/20" : "bg-slate-100 text-slate-500"
+                }`}
+              >
+                {count}
+              </span>
+            </button>
+          ))}
+        </div>
+
         {loading ? (
           <div className="py-16 text-center"><Loader2 className="w-8 h-8 animate-spin mx-auto text-emerald-600" /></div>
         ) : loadError ? (
@@ -139,8 +126,16 @@ export default function EventCalendar({ onRefreshTrigger }: { onRefreshTrigger?:
             <button onClick={() => void fetchEvents()} className="block mx-auto mt-4 px-4 py-2 rounded-xl bg-white border-2 border-red-700">重新載入</button>
           </div>
         ) : (
+          shown.length === 0 ? (
+          <div className="py-16 bg-white rounded-3xl border-2 border-dashed text-center">
+            <Calendar className="w-12 h-12 mx-auto text-slate-300 mb-2" />
+            <p className="font-bold text-slate-500">
+              {tab === "ongoing" ? "目前沒有進行中的活動，敬請期待。" : "還沒有已結束的活動。"}
+            </p>
+          </div>
+        ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            {events.map((ev, index) => {
+            {shown.map((ev, index) => {
               const status = getEventStatus(ev);
               const availableSeats = ev.maxSeats - ev.registeredCount;
               return (
@@ -182,58 +177,20 @@ export default function EventCalendar({ onRefreshTrigger }: { onRefreshTrigger?:
                   <div className="p-5 border-t flex flex-col sm:flex-row justify-between items-center gap-3 bg-slate-50">
                     <p className="text-xs font-black flex gap-2"><Users className="w-4 h-4 text-emerald-600" />已報名 {ev.registeredCount} / {ev.maxSeats}（剩 {Math.max(0, availableSeats)}）</p>
                     <button
-                      onClick={() => openRegistration(ev)}
-                      disabled={status !== "open"}
-                      className="w-full sm:w-auto px-5 py-2.5 bg-emerald-600 text-white disabled:bg-slate-300 disabled:text-slate-500 rounded-xl border-2 border-[#1e293b] text-xs font-black flex justify-center items-center gap-1"
+                      onClick={() => onOpenEvent(ev.id)}
+                      className="w-full sm:w-auto px-5 py-2.5 bg-emerald-600 text-white rounded-xl border-2 border-[#1e293b] text-xs font-black flex justify-center items-center gap-1"
                     >
-                      {status === "open" ? "立即報名" : statusLabels[status]}
-                      {status === "open" && <ChevronRight className="w-4 h-4" />}
+                      {status === "open" ? "查看詳情並報名" : "查看活動詳情"}
+                      <ChevronRight className="w-4 h-4" />
                     </button>
                   </div>
                 </motion.article>
               );
             })}
           </div>
-        )}
+        ))}
       </div>
 
-      <AnimatePresence>
-        {selectedEvent && (
-          <div className="fixed inset-0 z-[110] p-4 flex items-center justify-center">
-            <motion.button aria-label="關閉報名表" className="absolute inset-0 bg-slate-900/70" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => !submitting && setSelectedEvent(null)} />
-            <motion.div className="relative w-full max-w-lg max-h-[90vh] overflow-y-auto bg-white border-4 border-[#1e293b] rounded-[2rem] shadow-2xl" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 20 }}>
-              <div className="p-5 bg-[#1e293b] text-white sticky top-0 z-10">
-                <button onClick={() => setSelectedEvent(null)} className="absolute right-4 top-4"><X /></button>
-                <p className="text-xs text-amber-300 font-black">線上活動報名</p>
-                <h3 className="font-black pr-8">{selectedEvent.title}</h3>
-              </div>
-              {submitSuccess ? (
-                <div className="p-10 text-center">
-                  <CheckCircle2 className="w-16 h-16 mx-auto text-emerald-600 mb-3" />
-                  <h4 className="text-xl font-black">報名成功！</h4>
-                  <p className="text-sm font-bold text-slate-500 mt-2">名額已為您保留，活動前將以 Email 或電話聯絡。</p>
-                  <button onClick={() => setSelectedEvent(null)} className="mt-6 px-6 py-3 bg-emerald-600 text-white rounded-xl font-black">完成</button>
-                </div>
-              ) : (
-                <form onSubmit={submitRegistration} className="p-6 space-y-4">
-                  <div className="p-3 bg-emerald-50 border border-emerald-200 rounded-xl text-xs font-bold text-emerald-900">
-                    {user ? "已登入會員，資料已自動帶入；可在會員中心查看紀錄。" : "一般訪客也可以報名，請留下姓名、Email 與電話。"}
-                  </div>
-                  {submitError && <p className="p-3 bg-red-50 border border-red-300 rounded-xl text-sm font-bold text-red-800">{submitError}</p>}
-                  <label className="block text-xs font-black">姓名 *<input required value={regName} onChange={(e) => setRegName(e.target.value)} className="mt-1 w-full p-3 border-2 rounded-xl" /></label>
-                  <label className="block text-xs font-black">Email *<input required type="email" value={regEmail} onChange={(e) => setRegEmail(e.target.value)} className="mt-1 w-full p-3 border-2 rounded-xl" /></label>
-                  <label className="block text-xs font-black">聯絡電話 *<input required type="tel" value={regPhone} onChange={(e) => setRegPhone(e.target.value)} className="mt-1 w-full p-3 border-2 rounded-xl" /></label>
-                  <label className="block text-xs font-black">關注領域<select value={regType} onChange={(e) => setRegType(e.target.value)} className="mt-1 w-full p-3 border-2 rounded-xl bg-white"><option value="animal">動物保護</option><option value="plant">植物綠化</option><option value="eco">環境與淨灘</option><option value="other">其他／跨領域</option></select></label>
-                  <label className="block text-xs font-black">備註<textarea maxLength={500} value={regNotes} onChange={(e) => setRegNotes(e.target.value)} className="mt-1 w-full p-3 border-2 rounded-xl" rows={3} /></label>
-                  <button disabled={submitting} className="w-full py-3 bg-emerald-600 text-white rounded-xl border-2 border-[#1e293b] font-black flex justify-center gap-2">
-                    {submitting ? <Loader2 className="animate-spin" /> : <Heart className="fill-white" />}確認報名
-                  </button>
-                </form>
-              )}
-            </motion.div>
-          </div>
-        )}
-      </AnimatePresence>
     </section>
   );
 }
