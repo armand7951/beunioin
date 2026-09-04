@@ -47,7 +47,7 @@ export default function Header({ activeSection, onNavigate }: HeaderProps) {
 
   return (
     <header
-      className={`sticky top-0 z-50 w-full px-4 relative bg-[#fdfbf7]/95 backdrop-blur-md border-b-4 border-[#1e293b] transition-[padding] duration-200 motion-reduce:transition-none lg:py-3 ${
+      className={`sticky top-0 z-50 w-full px-4 bg-[#fdfbf7]/95 backdrop-blur-md border-b-4 border-[#1e293b] transition-[padding] duration-200 motion-reduce:transition-none lg:py-3 ${
         isMobileCollapsed ? "py-1.5" : "py-3"
       }`}
     >
@@ -56,6 +56,10 @@ export default function Header({ activeSection, onNavigate }: HeaderProps) {
           isMobileCollapsed ? "gap-0" : "gap-4"
         }`}
       >
+        {/* 手機版把 logo 與漢堡鈕綁成同一列。漢堡鈕原本是相對 <header> 絕對定位
+            並用 top-1/2 置中，但抽屜展開後 header 會變高，按鈕就跟著飄到選單中央、
+            壓在項目上面。 */}
+        <div className="w-full lg:w-auto flex items-center justify-between gap-2">
         {/* Brand Logo */}
         <button
           onClick={() => onNavigate("home")}
@@ -77,6 +81,20 @@ export default function Header({ activeSection, onNavigate }: HeaderProps) {
             <p className="text-[8px] sm:text-[9px] md:text-xs font-bold text-[#1e293b]/70 tracking-wider mt-0.5">BeUnion • 生態保育與志工的暖心後盾</p>
           </div>
         </button>
+
+        {/* 手機：漢堡鈕 */}
+        <button
+          type="button"
+          onClick={() => setMenuOpen((open) => !open)}
+          aria-expanded={menuOpen}
+          aria-controls="mobile-menu"
+          aria-label={menuOpen ? "關閉選單" : "開啟選單"}
+          id="mobile-menu-toggle"
+          className="lg:hidden shrink-0 p-2 rounded-xl border-2 border-[#1e293b] bg-white active:scale-95 transition-transform"
+        >
+          {menuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+        </button>
+        </div>
 
         {/* 桌機：橫向導覽 */}
         <nav className="hidden lg:flex items-center gap-2" id="main-navigation">
@@ -135,19 +153,6 @@ export default function Header({ activeSection, onNavigate }: HeaderProps) {
           )}
         </div>
 
-        {/* 手機：漢堡鈕。原本是一條要橫向捲動的選單列，還得在上面掛一行提示
-            使用者「可以滑」才看得懂；改成標準抽屜後，項目一眼全在。 */}
-        <button
-          type="button"
-          onClick={() => setMenuOpen((open) => !open)}
-          aria-expanded={menuOpen}
-          aria-controls="mobile-menu"
-          aria-label={menuOpen ? "關閉選單" : "開啟選單"}
-          id="mobile-menu-toggle"
-          className="lg:hidden absolute right-4 top-1/2 -translate-y-1/2 p-2 rounded-xl border-2 border-[#1e293b] bg-white active:scale-95 transition-transform"
-        >
-          {menuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-        </button>
       </div>
 
       {/* 手機抽屜 */}
