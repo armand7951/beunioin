@@ -18,9 +18,15 @@ export default async function handler(req: ApiRequest, res: ApiResponse) {
   const user = await getVerifiedUser(req.headers);
   if (!user) return res.status(401).json({ error: "請先登入。" });
 
-  const { data, error } = await getSupabaseAdmin().rpc("is_admin_user", {
+  // 一次拿到「是不是管理員」與「哪一層」。前端要靠 role 決定人員與日誌兩個選項
+  // 顯不顯示 —— 那只是介面整潔，真正的權限判斷在每支 RPC 自己的 require_admin。
+  const { data, error } = await getSupabaseAdmin().rpc("admin_my_role", {
     p_user_id: user.id,
   });
-  if (error) return res.status(500).json({ error: "無法確認管理員權限。" });
-  return res.status(200).json({ isAdmin: data === true });
+  if (error) {
+    console.error("Unable to resolve admin role:", error.message);
+    return res.status(500).json({ error: "無法確認管理員權限。" });
+  }
+  const role = typeof data === "string" ? data : null;
+  return res.status(200).json({ isAdmin: role !== null, role });
 }

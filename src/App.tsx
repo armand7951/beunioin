@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { lazy, Suspense, useEffect, useState } from "react";
 import Header from "./components/Header";
 import Hero from "./components/Hero";
 import MascotSelector from "./components/MascotSelector";
@@ -9,7 +9,11 @@ import AIConsultation from "./components/AIConsultation";
 import ReportForm from "./components/ReportForm";
 import NewsBoard from "./components/NewsBoard";
 import EventCalendar from "./components/EventCalendar";
-import AdminDashboard from "./components/AdminDashboard";
+import { BlogList, BlogPost } from "./components/Blog";
+
+// 後台（含 TipTap 編輯器）約佔 450KB，只有管理員會用到。用 lazy 切出去，
+// 一般訪客的首頁就不必為了一個他們進不去的頁面多下載半個 MB。
+const AdminDashboard = lazy(() => import("./components/AdminDashboard"));
 import AuthPage from "./components/AuthPage";
 import MemberCenter from "./components/MemberCenter";
 import ResetPassword from "./components/ResetPassword";
@@ -20,13 +24,27 @@ import { motion, AnimatePresence } from "motion/react";
 export default function App() {
   const [activeSection, setActiveSection] = useState("home");
   const [selectedMascotId, setSelectedMascotId] = useState("animal");
+  // 文章內頁的代碼。其餘頁面都是固定字串路徑，只有 /blog/<代碼> 帶參數。
+  const [postId, setPostId] = useState<string | null>(null);
 
   useEffect(() => {
     // Read and parse URL pathname routing (clean URLs)
     const handleLocationChange = () => {
       const pathName = window.location.pathname;
       const path = pathName.replace(/^\/+|\/+$/g, "");
-      const validSections = ["home", "mascots", "welfare", "shield", "quiz", "chat", "report", "admin", "auth", "member", "reset-password"];
+      const validSections = ["home", "mascots", "welfare", "shield", "quiz", "chat", "report", "admin", "auth", "member", "reset-password", "blog"];
+
+      // /blog/<代碼> 是唯一帶參數的路徑，要在比對固定清單之前先攔下來。
+      if (path.startsWith("blog/")) {
+        const slug = path.slice("blog/".length);
+        if (slug) {
+          setPostId(decodeURIComponent(slug));
+          setActiveSection("blog-post");
+          return;
+        }
+      }
+
+      setPostId(null);
       if (validSections.includes(path)) {
         setActiveSection(path);
       } else if (path === "") {
@@ -185,8 +203,24 @@ export default function App() {
               <ReportForm />
             )}
 
+            {activeSection === "blog" && (
+              <BlogList onOpen={(id) => handleNavigation(`blog/${id}`)} />
+            )}
+
+            {activeSection === "blog-post" && postId && (
+              <BlogPost id={postId} onBack={() => handleNavigation("blog")} />
+            )}
+
             {activeSection === "admin" && (
-              <AdminDashboard />
+              <Suspense
+                fallback={
+                  <div className="py-24 flex justify-center">
+                    <span className="w-6 h-6 rounded-full border-2 border-emerald-600 border-t-transparent animate-spin" />
+                  </div>
+                }
+              >
+                <AdminDashboard />
+              </Suspense>
             )}
 
             {activeSection === "auth" && (

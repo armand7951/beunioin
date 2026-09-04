@@ -20,6 +20,9 @@ interface AuthContextValue {
   profile: MemberProfile | null;
   loading: boolean;
   isAdmin: boolean;
+  // 'admin' 管理者 | 'operator' 操作者 | null 不是管理員。介面用它決定「人員」與
+  // 「操作紀錄」顯不顯示；真正的權限判斷在每支 RPC 的 require_admin，不在這裡。
+  adminRole: "admin" | "operator" | null;
   refreshProfile: () => Promise<void>;
   refreshAdmin: () => Promise<void>;
   signOut: () => Promise<void>;
@@ -32,6 +35,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [profile, setProfile] = useState<MemberProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [adminRole, setAdminRole] = useState<"admin" | "operator" | null>(null);
 
   const loadProfile = useCallback(async (activeSession?: Session | null) => {
     const currentSession = activeSession ?? (await supabase.auth.getSession()).data.session;
@@ -52,6 +56,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const currentSession = activeSession ?? (await supabase.auth.getSession()).data.session;
     if (!currentSession?.access_token) {
       setIsAdmin(false);
+      setAdminRole(null);
       return;
     }
 
@@ -59,9 +64,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const response = await fetch("/api/admin/me", {
         headers: { Authorization: `Bearer ${currentSession.access_token}` },
       });
-      setIsAdmin(response.ok && (await response.json()).isAdmin === true);
+      const body = response.ok ? await response.json() : null;
+      setIsAdmin(body?.isAdmin === true);
+      setAdminRole(body?.role === "admin" || body?.role === "operator" ? body.role : null);
     } catch {
       setIsAdmin(false);
+      setAdminRole(null);
     }
   }, []);
 
@@ -91,15 +99,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       profile,
       loading,
       isAdmin,
+      adminRole,
       refreshProfile: () => loadProfile(session),
       refreshAdmin: () => loadAdmin(session),
       signOut: async () => {
         await supabase.auth.signOut();
         setProfile(null);
         setIsAdmin(false);
+        setAdminRole(null);
       },
     }),
-    [isAdmin, loadAdmin, loadProfile, loading, profile, session],
+    [adminRole, isAdmin, loadAdmin, loadProfile, loading, profile, session],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
