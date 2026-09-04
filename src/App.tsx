@@ -100,7 +100,10 @@ export default function App() {
 
       {/* Main Multi-Page Content Experience */}
       <main className="flex-1">
-        <AnimatePresence mode="wait">
+        {/* 不要用 mode="wait"：它會等舊頁的離場動畫跑完才掛載新頁，於是只要離場
+            沒完成（例如分頁在背景、requestAnimationFrame 不觸發），使用者就會卡在
+            舊畫面上，新頁永遠不出現。換頁正確性不該押在一段動畫有沒有跑完。 */}
+        <AnimatePresence>
           <motion.div
             key={activeSection}
             initial={{ opacity: 0, y: 15 }}
