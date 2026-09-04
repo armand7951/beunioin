@@ -17,11 +17,14 @@ export default async function handler(req: ApiRequest, res: ApiResponse) {
   }
 
   try {
+    // 這支用的是 service_role，會繞過 events 的 RLS policy，所以「不給看草稿」
+    // 必須在這裡自己擋。少了這行 .eq()，後台存的草稿會直接出現在前台活動列表。
     const { data, error } = await getSupabaseAdmin()
       .from("events")
       .select(
         "id,title,event_date,starts_at,ends_at,time_label,location,lecturer,description,max_seats,registered_count,image_url,registration_open,lifecycle_status",
       )
+      .eq("is_published", true)
       .order("event_date", { ascending: true });
 
     if (error) {
