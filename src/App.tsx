@@ -4,7 +4,6 @@ import Header from "./components/Header";
 import Hero from "./components/Hero";
 import VolunteerWelfare from "./components/VolunteerWelfare";
 import ShieldHub from "./components/ShieldHub";
-import ReportForm from "./components/ReportForm";
 import NewsBoard from "./components/NewsBoard";
 import EventCalendar from "./components/EventCalendar";
 import { BlogList, BlogPost } from "./components/Blog";
@@ -32,7 +31,7 @@ export default function App() {
     const handleLocationChange = () => {
       const pathName = window.location.pathname;
       const path = pathName.replace(/^\/+|\/+$/g, "");
-      const validSections = ["home", "welfare", "shield", "report", "admin", "auth", "member", "reset-password", "blog", "events"];
+      const validSections = ["home", "welfare", "shield", "admin", "auth", "member", "reset-password", "blog", "events"];
 
       // 帶參數的路徑要在比對固定清單之前先攔下來。
       if (path.startsWith("blog/")) {
@@ -206,12 +205,6 @@ export default function App() {
 
             {activeSection === "shield" && (
               <ShieldHub />
-            )}
-
-
-
-            {activeSection === "report" && (
-              <ReportForm />
             )}
 
             {activeSection === "blog" && (

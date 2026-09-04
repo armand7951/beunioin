@@ -44,15 +44,17 @@ test("the drawer closes after navigating", () => {
   assert.match(drawer, /setMenuOpen\(false\)/);
 });
 
-test("the Footer exposes only the three secondary services", () => {
+// 權益申訴表單已下架，申訴改走 Footer 公布的熱線與信箱。
+test("the Footer lists the overview pages and the AI partners", () => {
   assert.match(footer, />更多服務<\/h5>/);
+  assert.match(footerServices, /onNavigate\("events"\)/);
+  assert.match(footerServices, /onNavigate\("blog"\)/);
   // 兩個 AI 小夥伴是外部連結，不走站內導覽。
   assert.match(footerServices, /AI_PARTNERS\.map/);
-  assert.match(footerServices, /onNavigate\("report"\)/);
-  assert.doesNotMatch(
-    footerServices,
-    /onNavigate\("(home|mascots|welfare|shield|quiz|chat)"\)/,
-  );
+  assert.doesNotMatch(footerServices, /onNavigate\("report"\)/);
+  // 申訴管道仍在，只是不再是站內表單
+  assert.match(footer, /8666-8111/);
+  assert.match(footer, /volt02332@gmail\.com/);
 });
 
 // 外開的連結一定要帶 noopener（不讓對方頁面拿到 window.opener）

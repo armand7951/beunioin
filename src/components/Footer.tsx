@@ -62,11 +62,6 @@ export default function Footer({ onNavigate }: FooterProps) {
                 </a>
               </li>
             ))}
-            <li>
-              <button onClick={() => onNavigate("report")} className="hover:text-amber-400 transition-colors text-left cursor-pointer">
-                💌 權益申訴 (Report Form)
-              </button>
-            </li>
           </ul>
         </div>
 

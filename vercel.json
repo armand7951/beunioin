@@ -9,10 +9,6 @@
       "destination": "/index.html"
     },
     {
-      "source": "/report",
-      "destination": "/index.html"
-    },
-    {
       "source": "/admin",
       "destination": "/index.html"
     },

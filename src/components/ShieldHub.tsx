@@ -646,12 +646,14 @@ export default function ShieldHub() {
               這些不合理的對待，台灣環境生態護育產業工會一對一關懷申訴系統會幫你撐腰、捍衛權益到底！
             </p>
           </div>
+          {/* 原本連到站內的權益申訴表單，表單已下架；改成直接寄申訴信箱，
+              免得按鈕指向不存在的錨點。信箱與 Footer 公布的同一個。 */}
           <a
-            href="#report-section"
+            href="mailto:volt02332@gmail.com?subject=%E6%AC%8A%E7%9B%8A%E7%94%B3%E8%A8%B4"
             className="px-6 py-3 bg-white hover:bg-amber-100 text-[#1e293b] font-black rounded-xl border-3 border-[#1e293b] bubbly-shadow text-center shrink-0 cursor-pointer text-sm whitespace-nowrap active:translate-y-0.5 transition-transform"
             id="shield-hub-report-btn"
           >
-            填寫權益申訴單 ✍️
+            寄信申訴 ✉️
           </a>
         </div>
 
