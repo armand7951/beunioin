@@ -14,6 +14,7 @@ export interface AdminPost {
   coverImageUrl: string;
   authorName: string;
   status: "draft" | "published";
+  isPinned: boolean;
   publishedAt?: string | null;
   updatedAt?: string | null;
 }
@@ -33,6 +34,7 @@ export const BLANK_POST: AdminPost = {
   coverImageUrl: "",
   authorName: "",
   status: "draft",
+  isPinned: false,
 };
 
 const MAX_BYTES = 3 * 1024 * 1024;
@@ -199,6 +201,15 @@ export default function AdminPostForm({
             <option value="draft">草稿</option>
             <option value="published">已發布</option>
           </select>
+          <label className="flex items-center gap-2 mt-2.5 font-black text-sm cursor-pointer">
+            <input
+              type="checkbox"
+              className="w-4 h-4"
+              checked={draft.isPinned}
+              onChange={(e) => set("isPinned", e.target.checked)}
+            />
+            置頂（首頁公佈欄優先顯示）
+          </label>
         </div>
 
         <div className="sm:col-span-2">

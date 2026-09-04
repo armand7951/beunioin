@@ -31,10 +31,20 @@ test("all imported images are local and exist", () => {
   }
 });
 
-test("the news board merges local imports with managed news and renders images", () => {
-  assert.match(newsBoard, /from "\.\.\/data\/news"/);
-  assert.match(newsBoard, /IMPORTED_NEWS/);
-  assert.match(newsBoard, /fetch\("\/api\/news"\)/);
-  assert.match(newsBoard, /mergeNews/);
-  assert.match(newsBoard, /block\.type === "image"/);
+// 這幾篇文章已經匯入 posts 表，後台可以編輯與刪除。公佈欄因此改讀 /api/posts，
+// 並且**不再**跟打包進 bundle 的 IMPORTED_NEWS 合併 —— 合併會讓後台刪掉的文章
+// 又從靜態備份冒出來。原本的 /api/news 從來沒被移植成 serverless function，
+// 在正式站一直是 404。
+test("the news board reads posts from the database with no bundled fallback", () => {
+  assert.match(newsBoard, /fetch\("\/api\/posts"\)/);
+  assert.doesNotMatch(newsBoard, /fetch\("\/api\/news"\)/);
+  assert.doesNotMatch(newsBoard, /IMPORTED_NEWS/);
+  assert.doesNotMatch(newsBoard, /mergeNews/);
+});
+
+// 點文章要進到該文章的頁面，不是開彈窗。
+test("the news board navigates to the article instead of opening a modal", () => {
+  assert.match(newsBoard, /onOpenPost/);
+  assert.doesNotMatch(newsBoard, /setSelectedItem/);
+  assert.doesNotMatch(newsBoard, /fixed inset-0/);
 });

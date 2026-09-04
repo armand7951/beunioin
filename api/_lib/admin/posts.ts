@@ -73,6 +73,7 @@ export default async function handler(req: ApiRequest, res: ApiResponse) {
         coverImageUrl: row.cover_image_url,
         authorName: row.author_name,
         status: row.status,
+        isPinned: row.is_pinned,
         publishedAt: row.published_at,
         updatedAt: row.updated_at,
       })),
@@ -97,6 +98,7 @@ export default async function handler(req: ApiRequest, res: ApiResponse) {
       p_cover_image_url: str(body.coverImageUrl),
       p_author_name: str(body.authorName),
       p_status: status,
+      p_is_pinned: body.isPinned === true,
     });
 
     if (fail(res, error?.message)) return;

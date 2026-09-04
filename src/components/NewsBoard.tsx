@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { motion, AnimatePresence } from "motion/react";
+import { motion } from "motion/react";
 import { 
   Search, 
   Calendar, 
@@ -10,37 +10,58 @@ import {
   Clock, 
   AlertCircle
 } from "lucide-react";
-import { IMPORTED_NEWS, type NewsItem } from "../data/news";
+import { type NewsItem } from "../data/news";
 
 export type { NewsItem } from "../data/news";
 
 interface NewsBoardProps {
   onNavigateToAdmin?: () => void;
+  // 點文章由 App 決定要去哪 —— 公佈欄不自己管路由。
+  onOpenPost: (id: string) => void;
 }
 
-function mergeNews(managedNews: NewsItem[]) {
-  const merged = new Map(
-    IMPORTED_NEWS.map((item) => [item.id, item] as const),
-  );
-  managedNews.forEach((item) => merged.set(item.id, item));
-  return [...merged.values()];
+// 後台的 post 轉成公佈欄卡片要的形狀。content 這裡用不到（點進去才讀內頁），
+// 所以留空字串而不是把整篇內文也一併抓下來。
+interface ApiPost {
+  id: string;
+  title: string;
+  excerpt: string;
+  categoryLabel: string | null;
+  coverImageUrl: string;
+  isPinned: boolean;
+  publishedAt: string | null;
 }
 
-export default function NewsBoard({ onNavigateToAdmin }: NewsBoardProps) {
-  const [news, setNews] = useState<NewsItem[]>(IMPORTED_NEWS);
+function toNewsItem(post: ApiPost): NewsItem {
+  return {
+    id: post.id,
+    title: post.title,
+    category: post.categoryLabel ?? "未分類",
+    date: post.publishedAt ? post.publishedAt.slice(0, 10) : "",
+    summary: post.excerpt,
+    content: "",
+    imageUrl: post.coverImageUrl || undefined,
+    isPinned: post.isPinned,
+  };
+}
+
+export default function NewsBoard({ onNavigateToAdmin, onOpenPost }: NewsBoardProps) {
+  const [news, setNews] = useState<NewsItem[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [selectedCategory, setSelectedCategory] = useState<string>("全部");
-  const [selectedItem, setSelectedItem] = useState<NewsItem | null>(null);
 
   useEffect(() => {
     const fetchNews = async () => {
       setLoading(true);
       try {
-        const response = await fetch("/api/news");
+        // 文章的單一真相在 posts 表。舊的 /api/news 從來沒被移植成 serverless
+        // function，在正式站一直是 404，公佈欄靠打包進 bundle 的靜態備份撐著 ——
+        // 那份備份會讓後台刪掉的文章又冒出來，所以連同備援一起拿掉。
+        const response = await fetch("/api/posts");
         if (response.ok) {
-          const managedNews = (await response.json()) as NewsItem[];
-          setNews(mergeNews(managedNews));
+          const posts = (await response.json()) as ApiPost[];
+          setNews(posts.map(toNewsItem));
         }
       } catch (error) {
         console.error("Error fetching news:", error);
@@ -236,7 +257,7 @@ export default function NewsBoard({ onNavigateToAdmin }: NewsBoardProps) {
 
                 <div className="px-6 pb-6 pt-2">
                   <button
-                    onClick={() => setSelectedItem(item)}
+                    onClick={() => onOpenPost(item.id)}
                     className="w-full py-2.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 text-xs font-black rounded-xl border-2 border-[#1e293b] flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
                   >
                     <span>閱讀全文</span>
@@ -250,165 +271,6 @@ export default function NewsBoard({ onNavigateToAdmin }: NewsBoardProps) {
 
       </div>
 
-      {/* Detail News Modal */}
-      <AnimatePresence>
-        {selectedItem && (
-          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6 md:p-10">
-            {/* Modal Backdrop */}
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              onClick={() => setSelectedItem(null)}
-              className="absolute inset-0 bg-[#1e293b]/60 backdrop-blur-sm"
-            />
-
-            {/* Modal Box */}
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95, y: 30 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.95, y: 30 }}
-              className="relative w-full max-w-3xl bg-[#fffdfa] rounded-[2.5rem] border-4 border-[#1e293b] shadow-2xl overflow-hidden z-10 flex flex-col max-h-[85vh] text-left"
-            >
-              {/* Image banner or decorative bar */}
-              {selectedItem.imageUrl ? (
-                <div className="h-56 sm:h-64 w-full relative shrink-0 border-b-4 border-[#1e293b] bg-slate-100">
-                  <img 
-                    src={selectedItem.imageUrl} 
-                    alt={selectedItem.title} 
-                    className="w-full h-full object-cover"
-                    referrerPolicy="no-referrer"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
-                  
-                  <button
-                    onClick={() => setSelectedItem(null)}
-                    className="absolute top-4 right-4 w-9 h-9 bg-white hover:bg-amber-100 text-[#1e293b] rounded-full border-2 border-[#1e293b] flex items-center justify-center transition-colors cursor-pointer z-20 shadow-md"
-                  >
-                    <X className="w-5 h-5" />
-                  </button>
-
-                  <div className="absolute bottom-4 left-6 right-6">
-                    <span className={`inline-block px-3 py-1 rounded-full text-xs font-black border mb-2 ${getCategoryStyles(selectedItem.category)}`}>
-                      {selectedItem.category}
-                    </span>
-                    <h2 className="text-xl sm:text-2xl font-black text-white leading-tight drop-shadow-md">
-                      {selectedItem.title}
-                    </h2>
-                  </div>
-                </div>
-              ) : (
-                <div className="p-6 pb-0 flex justify-between items-start shrink-0 relative">
-                  <div>
-                    <span className={`inline-block px-3 py-1 rounded-full text-xs font-black border mb-2 ${getCategoryStyles(selectedItem.category)}`}>
-                      {selectedItem.category}
-                    </span>
-                    <h2 className="text-lg sm:text-xl md:text-2xl font-black text-[#1e293b] leading-tight pr-8">
-                      {selectedItem.title}
-                    </h2>
-                  </div>
-                  <button
-                    onClick={() => setSelectedItem(null)}
-                    className="absolute top-4 right-4 w-9 h-9 bg-white hover:bg-amber-100 text-[#1e293b] rounded-full border-2 border-[#1e293b] flex items-center justify-center transition-colors cursor-pointer"
-                  >
-                    <X className="w-5 h-5" />
-                  </button>
-                </div>
-              )}
-
-              {/* Scrollable details */}
-              <div className="p-6 overflow-y-auto space-y-6 flex-1 text-[#1e293b]">
-                
-                {/* Meta details */}
-                <div className="flex flex-wrap gap-4 text-xs font-bold text-[#1e293b]/60 pb-4 border-b border-[#1e293b]/10 bg-slate-50/50 p-4 rounded-xl border border-slate-200">
-                  <div className="flex items-center gap-1">
-                    <Calendar className="w-4 h-4 text-emerald-600" />
-                    <span>公告日期：{selectedItem.date}</span>
-                  </div>
-                  <div className="flex items-center gap-1">
-                    <Clock className="w-4 h-4 text-indigo-600" />
-                    <span>對象限制：全體工會成員與志工夥伴</span>
-                  </div>
-                  {selectedItem.isPinned && (
-                    <div className="flex items-center gap-1 text-amber-600">
-                      <Bookmark className="w-4 h-4 fill-amber-500" />
-                      <span>重點公告</span>
-                    </div>
-                  )}
-                </div>
-
-                {/* Main rich text content */}
-                <div className="prose prose-slate max-w-none text-sm sm:text-base font-medium leading-relaxed space-y-3">
-                  {selectedItem.content.split("\n").map((line, index) => {
-                    if (!line.trim()) return null;
-                    if (line.startsWith("#### ")) {
-                      return <h5 key={index} className="text-base font-black mt-5">{line.slice(5)}</h5>;
-                    }
-                    if (line.startsWith("### ")) {
-                      return <h4 key={index} className="text-lg font-black mt-6 text-emerald-800">{line.slice(4)}</h4>;
-                    }
-                    if (line.startsWith("## ")) {
-                      return <h3 key={index} className="text-xl font-black mt-8 border-l-4 border-amber-400 pl-3">{line.slice(3)}</h3>;
-                    }
-                    if (line.startsWith("• ")) {
-                      return <p key={index} className="pl-5 relative before:content-['•'] before:absolute before:left-1 before:text-emerald-600">{line.slice(2)}</p>;
-                    }
-                    return <p key={index}>{line}</p>;
-                  })}
-                </div>
-
-                {selectedItem.images && selectedItem.images.length > 0 && (
-                  <div className="pt-6 border-t-2 border-dashed border-[#1e293b]/15">
-                    <h3 className="text-lg font-black mb-4">文章圖片</h3>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      {selectedItem.images.map((block, index) =>
-                        block.type === "image" ? (
-                          <figure key={`${block.imageUrl}-${index}`} className="overflow-hidden rounded-2xl border-2 border-[#1e293b] bg-white">
-                            <img
-                              src={block.imageUrl}
-                              alt={block.alt}
-                              className="w-full h-auto object-contain"
-                            />
-                            {block.caption && (
-                              <figcaption className="p-3 text-xs font-semibold text-[#1e293b]/65 leading-relaxed">
-                                {block.caption}
-                              </figcaption>
-                            )}
-                          </figure>
-                        ) : null,
-                      )}
-                    </div>
-                  </div>
-                )}
-
-                {selectedItem.sourceUrl && (
-                  <a
-                    href={selectedItem.sourceUrl}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="inline-flex text-xs font-black text-emerald-700 underline"
-                  >
-                    查看原始文章
-                  </a>
-                )}
-              </div>
-
-              {/* Close footer */}
-              <div className="p-6 border-t-4 border-[#1e293b] bg-amber-50/40 flex justify-between items-center shrink-0">
-                <span className="text-xs font-bold text-[#1e293b]/40">
-                  台灣環境共生工會 • 爭取環境勞工權益與環境正義
-                </span>
-                <button
-                  onClick={() => setSelectedItem(null)}
-                  className="px-6 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-black rounded-xl border-2 border-[#1e293b] bubbly-shadow-sm cursor-pointer transition-colors"
-                >
-                  關閉視窗
-                </button>
-              </div>
-            </motion.div>
-          </div>
-        )}
-      </AnimatePresence>
     </div>
   );
 }

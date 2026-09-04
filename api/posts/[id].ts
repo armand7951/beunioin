@@ -23,7 +23,7 @@ export default async function handler(req: ApiRequest, res: ApiResponse) {
   try {
     const { data, error } = await getSupabaseAdmin()
       .from("posts")
-      .select("id,title,excerpt,content_html,category,cover_image_url,author_name,published_at,post_categories(label)")
+      .select("id,title,excerpt,content_html,category,cover_image_url,author_name,is_pinned,published_at,post_categories(label)")
       .eq("id", id)
       .eq("status", "published")
       .maybeSingle();
@@ -42,6 +42,7 @@ export default async function handler(req: ApiRequest, res: ApiResponse) {
       categoryLabel: (data.post_categories as { label?: string } | null)?.label ?? null,
       coverImageUrl: data.cover_image_url,
       authorName: data.author_name,
+      isPinned: data.is_pinned,
       publishedAt: data.published_at,
     });
   } catch (error) {

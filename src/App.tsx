@@ -114,7 +114,10 @@ export default function App() {
                 <EventCalendar />
 
                 {/* Dynamic Activities News Board Section */}
-                <NewsBoard onNavigateToAdmin={() => handleNavigation("admin")} />
+                <NewsBoard
+                  onNavigateToAdmin={() => handleNavigation("admin")}
+                  onOpenPost={(id) => handleNavigation(`blog/${id}`)}
+                />
                 
                 {/* Home Page Highlights & Portals */}
                 <div className="bg-amber-50/20 border-t-4 border-[#1e293b] py-16 px-4">

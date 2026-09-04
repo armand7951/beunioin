@@ -24,8 +24,9 @@ export default async function handler(req: ApiRequest, res: ApiResponse) {
     // 跟 /api/events 是同一個坑（20260905000000 §1）。
     let query = getSupabaseAdmin()
       .from("posts")
-      .select("id,title,excerpt,category,cover_image_url,author_name,published_at,post_categories(label)")
+      .select("id,title,excerpt,category,cover_image_url,author_name,is_pinned,published_at,post_categories(label)")
       .eq("status", "published")
+      .order("is_pinned", { ascending: false })
       .order("published_at", { ascending: false });
 
     if (category) query = query.eq("category", category);
@@ -43,6 +44,7 @@ export default async function handler(req: ApiRequest, res: ApiResponse) {
         categoryLabel: (post.post_categories as { label?: string } | null)?.label ?? null,
         coverImageUrl: post.cover_image_url,
         authorName: post.author_name,
+        isPinned: post.is_pinned,
         publishedAt: post.published_at,
       })),
     );
