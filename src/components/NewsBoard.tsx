@@ -8,9 +8,11 @@ import {
   ArrowRight, 
   X, 
   Clock, 
-  AlertCircle
+  AlertCircle,
+  ChevronDown
 } from "lucide-react";
 import { type NewsItem } from "../data/news";
+import { CARD_GRID, CARD_ITEM, CARD_MEDIA, HOME_CARD_LIMIT } from "../lib/cardLayout";
 
 export type { NewsItem } from "../data/news";
 
@@ -50,6 +52,7 @@ export default function NewsBoard({ onNavigateToAdmin, onOpenPost }: NewsBoardPr
   const [loading, setLoading] = useState<boolean>(true);
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [selectedCategory, setSelectedCategory] = useState<string>("全部");
+  const [showAll, setShowAll] = useState(false);
 
   useEffect(() => {
     const fetchNews = async () => {
@@ -94,6 +97,10 @@ export default function NewsBoard({ onNavigateToAdmin, onOpenPost }: NewsBoardPr
     if (!a.isPinned && b.isPinned) return 1;
     return new Date(b.date).getTime() - new Date(a.date).getTime();
   });
+
+  // 首頁只放兩排；其餘收在「看更多」後面，避免公佈欄把整頁吃掉。
+  const visibleNews = showAll ? sortedNews : sortedNews.slice(0, HOME_CARD_LIMIT);
+  const hiddenCount = sortedNews.length - visibleNews.length;
 
   const getCategoryStyles = (category: string) => {
     switch (category) {
@@ -197,21 +204,21 @@ export default function NewsBoard({ onNavigateToAdmin, onOpenPost }: NewsBoardPr
             </p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {sortedNews.map((item, index) => (
+          <div className={CARD_GRID}>
+            {visibleNews.map((item, index) => (
               <motion.div
                 key={item.id}
                 initial={{ opacity: 0, y: 15 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.3, delay: index * 0.05 }}
-                className={`bg-white border-3 border-[#1e293b] rounded-[2rem] overflow-hidden bubbly-shadow-md hover:scale-[1.01] hover:shadow-[6px_6px_0px_0px_#1e293b] transition-all flex flex-col justify-between text-left ${
+                className={`${CARD_ITEM} bg-white border-3 border-[#1e293b] rounded-[2rem] overflow-hidden bubbly-shadow-md lg:hover:scale-[1.01] hover:shadow-[6px_6px_0px_0px_#1e293b] transition-all flex flex-col justify-between text-left ${
                   item.isPinned ? "relative ring-4 ring-amber-400/30" : ""
                 }`}
               >
                 <div>
                   {/* Banner image or fallback placeholder */}
                   {item.imageUrl ? (
-                    <div className="h-48 w-full overflow-hidden border-b-3 border-[#1e293b] relative bg-slate-100">
+                    <div className={`${CARD_MEDIA} relative`}>
                       <img 
                         src={item.imageUrl} 
                         alt={item.title} 
@@ -266,6 +273,18 @@ export default function NewsBoard({ onNavigateToAdmin, onOpenPost }: NewsBoardPr
                 </div>
               </motion.div>
             ))}
+          </div>
+        )}
+
+        {hiddenCount > 0 && !showAll && (
+          <div className="mt-8 text-center">
+            <button
+              onClick={() => setShowAll(true)}
+              className="inline-flex items-center gap-2 px-6 py-3 bg-white hover:bg-slate-50 border-3 border-[#1e293b] rounded-2xl font-black text-sm bubbly-shadow-md transition-colors"
+            >
+              看更多文章（還有 {hiddenCount} 篇）
+              <ChevronDown className="w-4 h-4" />
+            </button>
           </div>
         )}
 

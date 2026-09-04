@@ -75,9 +75,33 @@ test("the calendar opens an event page instead of a registration modal", () => {
   assert.match(detail, /status !== "open"/);
 });
 
+// 首頁的活動卡與文章卡共用 CARD_MEDIA（同高），所以這裡不再寫死長寬比 ——
+// 「不裁切」真正靠的是 object-contain，直式海報會留白但完整可見。
 test("portrait posters are shown without cropping", () => {
-  assert.match(calendar, /aspect-\[2\/3\]/);
+  assert.match(calendar, /CARD_MEDIA/);
   assert.match(calendar, /object-contain/);
+  const layout = readFileSync("src/lib/cardLayout.ts", "utf8");
+  assert.match(layout, /CARD_MEDIA/);
+});
+
+// 首頁兩區都是：手機一列可左右滑、桌機三欄、最多兩排。
+test("home cards share one layout: swipeable on phones, three across, two rows", () => {
+  const news = readFileSync("src/components/NewsBoard.tsx", "utf8");
+  const layout = readFileSync("src/lib/cardLayout.ts", "utf8");
+
+  assert.match(layout, /overflow-x-auto/);
+  assert.match(layout, /snap-x/);
+  assert.match(layout, /lg:grid-cols-3/);
+  // shrink-0 少了的話卡片會被壓進一個螢幕寬，等於捲不動。
+  assert.match(layout, /shrink-0/);
+  assert.match(layout, /HOME_CARD_LIMIT = 6/);
+
+  for (const source of [calendar, news]) {
+    assert.match(source, /CARD_GRID/);
+    assert.match(source, /CARD_ITEM/);
+    assert.match(source, /HOME_CARD_LIMIT/);
+    assert.match(source, /看更多/);
+  }
 });
 
 test("event loading failures are visible to visitors", () => {

@@ -1,20 +1,19 @@
 import React, { useEffect, useState } from "react";
-import { AnimatePresence, motion } from "motion/react";
+import { motion } from "motion/react";
 import {
   AlertTriangle,
   Calendar,
-  CheckCircle2,
+  ChevronDown,
   ChevronRight,
   Clock,
-  Heart,
   Loader2,
   MapPin,
   User,
   Users,
-  X,
 } from "lucide-react";
 import { useAuth } from "../contexts/AuthContext";
 import { getEventStatus, type EventStatus } from "../lib/eventStatus";
+import { CARD_GRID, CARD_ITEM, CARD_MEDIA, HOME_CARD_LIMIT } from "../lib/cardLayout";
 
 export interface EventItem {
   id: string;
@@ -53,6 +52,7 @@ export default function EventCalendar({
   const [loadError, setLoadError] = useState("");
   const [imageFailures, setImageFailures] = useState<Set<string>>(new Set());
   const [tab, setTab] = useState<"ongoing" | "ended">("ongoing");
+  const [showAll, setShowAll] = useState(false);
 
   const fetchEvents = async () => {
     setLoadError("");
@@ -76,7 +76,10 @@ export default function EventCalendar({
   // lifecycleStatus 與 endsAt，所以活動時間一過就自己歸到已結束那一組。
   const ongoing = events.filter((ev) => getEventStatus(ev) !== "ended");
   const ended = events.filter((ev) => getEventStatus(ev) === "ended");
-  const shown = tab === "ongoing" ? ongoing : ended;
+  const inTab = tab === "ongoing" ? ongoing : ended;
+  // 跟公佈欄一樣，首頁只放兩排。
+  const shown = showAll ? inTab : inTab.slice(0, HOME_CARD_LIMIT);
+  const hiddenCount = inTab.length - shown.length;
 
   return (
     <section className="py-16 bg-[#faf8f4] border-t-4 border-[#1e293b]" id="activities-calendar-section">
@@ -100,7 +103,7 @@ export default function EventCalendar({
           ).map(([key, label, count]) => (
             <button
               key={key}
-              onClick={() => setTab(key)}
+              onClick={() => { setTab(key); setShowAll(false); }}
               aria-current={tab === key ? "page" : undefined}
               className={`px-5 py-2.5 rounded-full font-black text-sm border-2 border-[#1e293b] transition-colors ${
                 tab === key ? "bg-[#1e293b] text-white" : "bg-white text-slate-500 hover:bg-slate-50"
@@ -134,7 +137,7 @@ export default function EventCalendar({
             </p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          <div className={CARD_GRID}>
             {shown.map((ev, index) => {
               const status = getEventStatus(ev);
               const availableSeats = ev.maxSeats - ev.registeredCount;
@@ -144,10 +147,10 @@ export default function EventCalendar({
                   initial={{ opacity: 0, y: 18 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: index * 0.06 }}
-                  className="bg-white border-3 border-[#1e293b] rounded-[2rem] overflow-hidden bubbly-shadow-md flex flex-col"
+className={`${CARD_ITEM} bg-white border-3 border-[#1e293b] rounded-[2rem] overflow-hidden bubbly-shadow-md flex flex-col`}
                   id={`event-card-${ev.id}`}
                 >
-                  <div className="aspect-[2/3] w-full bg-slate-100 border-b-3 border-[#1e293b] relative flex items-center justify-center">
+                  <div className={`${CARD_MEDIA} relative flex items-center justify-center`}>
                     {ev.imageUrl && !imageFailures.has(ev.id) ? (
                       <img
                         src={ev.imageUrl}
@@ -189,6 +192,18 @@ export default function EventCalendar({
             })}
           </div>
         ))}
+
+        {hiddenCount > 0 && !showAll && (
+          <div className="mt-8 text-center">
+            <button
+              onClick={() => setShowAll(true)}
+              className="inline-flex items-center gap-2 px-6 py-3 bg-white hover:bg-slate-50 border-3 border-[#1e293b] rounded-2xl font-black text-sm bubbly-shadow-md transition-colors"
+            >
+              看更多活動（還有 {hiddenCount} 場）
+              <ChevronDown className="w-4 h-4" />
+            </button>
+          </div>
+        )}
       </div>
 
     </section>
