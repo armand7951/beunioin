@@ -47,3 +47,17 @@ test("admin PII functions remain service-only", () => {
     /revoke all on function public\.list_event_registrations_for_admin\(uuid\)\s*from public, anon, authenticated/i,
   );
 });
+
+// 有後台權限的人登入後直接進管理後台，其他人進會員中心。
+// refreshAdmin 必須回傳角色並被 await —— context 的 isAdmin 在登入那一刻還沒
+// 更新，直接讀會一律判成非管理員。
+test("signing in sends admins to the dashboard", () => {
+  const page = readFileSync("src/components/AuthPage.tsx", "utf8");
+  const ctx = readFileSync("src/contexts/AuthContext.tsx", "utf8");
+
+  assert.match(page, /const role = await refreshAdmin\(\)/);
+  assert.match(page, /onNavigate\(role \? "admin" : "member"\)/);
+  assert.match(ctx, /Promise<AdminRole>/);
+  // refreshAdmin 不可帶 state 裡的舊 session
+  assert.match(ctx, /refreshAdmin: \(\) => loadAdmin\(\)/);
+});

@@ -1,10 +1,12 @@
 import React, { useState } from "react";
 import { AlertTriangle, CheckCircle2, Loader2, LockKeyhole, Mail, UserRound } from "lucide-react";
 import { supabase } from "../lib/supabaseClient";
+import { useAuth } from "../contexts/AuthContext";
 
 type AuthMode = "login" | "register" | "forgot";
 
 export default function AuthPage({ onNavigate }: { onNavigate: (section: string) => void }) {
+  const { refreshAdmin } = useAuth();
   const [mode, setMode] = useState<AuthMode>("login");
   const [fullName, setFullName] = useState("");
   const [phone, setPhone] = useState("");
@@ -70,7 +72,12 @@ export default function AuthPage({ onNavigate }: { onNavigate: (section: string)
         password,
       });
       if (signInError) throw signInError;
-      onNavigate("member");
+
+      // 有後台權限的人直接進管理後台，其他人進會員中心。
+      // 必須等 refreshAdmin 回傳才知道 —— context 裡的 isAdmin 這一刻還沒更新，
+      // 直接讀它會一律當成非管理員。
+      const role = await refreshAdmin();
+      onNavigate(role ? "admin" : "member");
     } catch (caught) {
       const raw = caught instanceof Error ? caught.message : "";
       const friendly =
