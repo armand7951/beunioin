@@ -83,3 +83,17 @@ test("switching pages does not depend on an exit animation", () => {
   // key 換掉就讓 React 直接卸載舊頁
   assert.match(app, /key=\{activeSection\}/);
 });
+
+// 公開頁面不留任何後台入口。先前有兩個：公佈欄上的「進入後台管理」按鈕，
+// 以及藏在 Footer 版權宣告底下、幾乎看不見的「系統管理」小連結。
+// 管理員登入後從 Header 就有「管理後台」，不需要這些。
+test("public pages expose no admin entry points", () => {
+  const news = readFileSync("src/components/NewsBoard.tsx", "utf8");
+  assert.doesNotMatch(footer, /onNavigate\("admin"\)/);
+  assert.doesNotMatch(footer, /hidden-admin-btn/);
+  assert.doesNotMatch(footer, /系統管理/);
+  assert.doesNotMatch(news, /onNavigateToAdmin/);
+  assert.doesNotMatch(news, /進入後台管理/);
+  // Header 的入口保留，但只給已登入的管理員
+  assert.match(header, /isAdmin && \(/);
+});

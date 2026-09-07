@@ -90,17 +90,9 @@ export default function Footer({ onNavigate }: FooterProps) {
 
       <div className="max-w-7xl mx-auto mt-16 pt-8 border-t border-white/10 text-center text-xs font-bold text-white/40">
         <p>© 2026 台灣環境生態護育產業工會 Taiwan Environmental Ecology and Conservation Industry Union (BeUnion). All Rights Reserved.</p>
-        <div className="mt-2 text-[10px] text-white/20 flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2">
-          <span>工會登記字號：府勞資字第 1120155234 號 • 全台環境生態、動植物工作者與志工權益捍衛熱血守護中 🐾🌱💧</span>
-          <span className="hidden sm:inline text-white/10">•</span>
-          <button 
-            onClick={() => onNavigate("admin")} 
-            className="text-white/10 hover:text-white/40 transition-colors cursor-pointer text-[9px] font-normal underline decoration-white/10"
-            id="hidden-admin-btn"
-          >
-            系統管理
-          </button>
-        </div>
+        <p className="mt-2 text-[10px] text-white/20">
+          工會登記字號：府勞資字第 1120155234 號 • 全台環境生態、動植物工作者與志工權益捍衛熱血守護中 🐾🌱💧
+        </p>
       </div>
     </footer>
   );
