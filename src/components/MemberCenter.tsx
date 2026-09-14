@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
-import { Calendar, Loader2, ShieldCheck, UserRound } from "lucide-react";
+import type { CourseSummary } from "./Courses";
+import { Calendar, Loader2, ShieldCheck, UserRound, BookOpen, PlayCircle } from "lucide-react";
 import { useAuth } from "../contexts/AuthContext";
 import { supabase } from "../lib/supabaseClient";
 
@@ -10,7 +11,18 @@ interface MemberRegistration {
   events: { title: string; event_date: string } | null;
 }
 export default function MemberCenter({ onNavigate }: { onNavigate: (section: string) => void }) {
-  const { user, profile, loading, refreshProfile } = useAuth();
+  const { user, profile, loading, refreshProfile, session } = useAuth();
+  const [courses, setCourses] = useState<CourseSummary[]>([]);
+
+  useEffect(() => {
+    const token = session?.access_token;
+    if (!token) return;
+    fetch("/api/courses/mine", { headers: { Authorization: `Bearer ${token}` } })
+      .then((r) => (r.ok ? r.json() : []))
+      .then(setCourses)
+      .catch(() => setCourses([]));
+  }, [session?.access_token]);
+
   const [fullName, setFullName] = useState("");
   const [phone, setPhone] = useState("");
   const [registrations, setRegistrations] = useState<MemberRegistration[]>([]);
@@ -82,6 +94,37 @@ export default function MemberCenter({ onNavigate }: { onNavigate: (section: str
                     <p className="text-xs font-bold text-slate-500">{registration.events?.event_date}</p>
                   </li>
                 ))}
+              </ul>
+            )}
+          </div>
+
+          <div className="md:col-span-2 bg-white p-6 rounded-3xl border-3 border-[#1e293b] bubbly-shadow-md">
+            <h3 className="text-xl font-black flex items-center gap-2"><BookOpen className="w-5 h-5" />我的課程</h3>
+            {courses.length === 0 ? (
+              <p className="mt-6 text-sm font-bold text-slate-500">
+                目前沒有可觀看的課程。若你是舊平台的學員，請確認登入的 Email 與當時報名的相同。
+              </p>
+            ) : (
+              <ul className="mt-4 grid sm:grid-cols-2 gap-3">
+                {courses.map((course) => {
+                  const done = course.lessons.filter((l) => l.completed).length;
+                  return (
+                    <li key={course.id} className="p-4 bg-emerald-50 rounded-xl border border-emerald-200 flex flex-col">
+                      <p className="font-black text-sm">{course.title}</p>
+                      <p className="text-xs font-bold text-slate-500 mt-1">
+                        已完成 {done} / {course.lessons.length} 個單元
+                        {course.expiresAt && ` · 可看到 ${new Date(course.expiresAt).toLocaleDateString("zh-TW")}`}
+                      </p>
+                      <button
+                        onClick={() => onNavigate(`learn/${course.id}`)}
+                        className="mt-3 self-start flex items-center gap-1.5 px-4 py-2 bg-emerald-600 text-white rounded-xl border-2 border-[#1e293b] text-xs font-black"
+                      >
+                        <PlayCircle className="w-4 h-4" />
+                        {done > 0 ? "繼續上課" : "開始上課"}
+                      </button>
+                    </li>
+                  );
+                })}
               </ul>
             )}
           </div>

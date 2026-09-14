@@ -49,6 +49,11 @@ export default function Footer({ onNavigate }: FooterProps) {
                 📰 工會文章總覽
               </button>
             </li>
+            <li>
+              <button onClick={() => onNavigate("courses")} className="hover:text-amber-400 transition-colors text-left cursor-pointer">
+                🎓 線上課程
+              </button>
+            </li>
             {AI_PARTNERS.map((partner) => (
               <li key={partner.id}>
                 <a

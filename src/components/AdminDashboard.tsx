@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import {
+  BookOpen,
   CalendarPlus,
   Download,
   FileText,
@@ -15,6 +16,7 @@ import {
 } from "lucide-react";
 import { useAuth } from "../contexts/AuthContext";
 import { supabase } from "../lib/supabaseClient";
+import AdminCourses from "./AdminCourses";
 import AdminEventForm, { BLANK_EVENT, type AdminEvent } from "./AdminEventForm";
 import AdminPostForm, {
   BLANK_POST,
@@ -54,7 +56,7 @@ interface AuditEntry {
   changedAt: string;
 }
 
-type Section = "events" | "posts" | "registrations" | "admins" | "audit";
+type Section = "events" | "posts" | "courses" | "registrations" | "admins" | "audit";
 
 const VOLUNTEER_LABELS: Record<string, string> = {
   animal: "動物保護",
@@ -80,6 +82,9 @@ const ENTITY_LABELS: Record<string, string> = {
   event_registrations: "報名",
   posts: "文章",
   admin_users: "人員",
+  courses: "課程",
+  course_lessons: "課程單元",
+  course_entitlements: "學員權限",
 };
 
 const BADGE = "px-2 py-1 rounded-full text-xs font-black";
@@ -272,15 +277,17 @@ export default function AdminDashboard() {
     );
   }
 
-  const NAV: Array<[Section, string, number, typeof CalendarPlus]> = [
+  const NAV: Array<[Section, string, number | null, typeof CalendarPlus]> = [
     ["events", "活動管理", events.length, CalendarPlus],
     ["posts", "文章管理", posts.length, FileText],
+    // 課程區塊自己載入資料，側欄不顯示數量
+    ["courses", "課程管理", null, BookOpen],
     ["registrations", "報名名單", registrations.length, Users],
     ...(isManager
       ? ([
           ["admins", "人員權限", admins.length, UserCog],
           ["audit", "操作紀錄", audit.length, History],
-        ] as Array<[Section, string, number, typeof CalendarPlus]>)
+        ] as Array<[Section, string, number | null, typeof CalendarPlus]>)
       : []),
   ];
 
@@ -312,13 +319,15 @@ export default function AdminDashboard() {
               >
                 <Icon className="w-4 h-4 shrink-0" />
                 <span className="flex-1 whitespace-nowrap">{label}</span>
-                <span
-                  className={`px-2 py-0.5 rounded-full text-xs ${
-                    section === key ? "bg-white/20" : "bg-slate-100 text-slate-500"
-                  }`}
-                >
-                  {count}
-                </span>
+                {count !== null && (
+                  <span
+                    className={`px-2 py-0.5 rounded-full text-xs ${
+                      section === key ? "bg-white/20" : "bg-slate-100 text-slate-500"
+                    }`}
+                  >
+                    {count}
+                  </span>
+                )}
               </button>
             ))}
           </nav>
@@ -614,6 +623,8 @@ export default function AdminDashboard() {
                 </div>
               )}
             </>
+          ) : section === "courses" ? (
+            <AdminCourses call={call} uploadImage={uploadImage} notify={setNotice} onError={setError} />
           ) : section === "registrations" ? (
             <>
               <div className="flex flex-col sm:flex-row sm:items-center gap-3 mb-5">

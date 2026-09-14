@@ -9,6 +9,7 @@ import EventCalendar from "./components/EventCalendar";
 import { BlogList, BlogPost } from "./components/Blog";
 import EventDetail from "./components/EventDetail";
 import EventList from "./components/EventList";
+import { Classroom, CourseDetail, CourseList } from "./components/Courses";
 
 // 後台（含 TipTap 編輯器）約佔 450KB，只有管理員會用到。用 lazy 切出去，
 // 一般訪客的首頁就不必為了一個他們進不去的頁面多下載半個 MB。
@@ -25,13 +26,15 @@ export default function App() {
   // 文章內頁的代碼。其餘頁面都是固定字串路徑，只有 /blog/<代碼> 帶參數。
   const [postId, setPostId] = useState<string | null>(null);
   const [eventId, setEventId] = useState<string | null>(null);
+  const [courseId, setCourseId] = useState<string | null>(null);
+  const [lessonId, setLessonId] = useState<string | null>(null);
 
   useEffect(() => {
     // Read and parse URL pathname routing (clean URLs)
     const handleLocationChange = () => {
       const pathName = window.location.pathname;
       const path = pathName.replace(/^\/+|\/+$/g, "");
-      const validSections = ["home", "welfare", "shield", "admin", "auth", "member", "reset-password", "blog", "events"];
+      const validSections = ["home", "welfare", "shield", "admin", "auth", "member", "reset-password", "blog", "events", "courses"];
 
       // 帶參數的路徑要在比對固定清單之前先攔下來。
       if (path.startsWith("blog/")) {
@@ -52,9 +55,28 @@ export default function App() {
           return;
         }
       }
+      if (path.startsWith("courses/")) {
+        const slug = path.slice("courses/".length);
+        if (slug) {
+          setCourseId(decodeURIComponent(slug));
+          setActiveSection("course-detail");
+          return;
+        }
+      }
+      // /learn/<課程>?lesson=<單元>：教室。單元用 query 帶，這樣重新整理會停在同一堂。
+      if (path.startsWith("learn/")) {
+        const slug = path.slice("learn/".length);
+        if (slug) {
+          setCourseId(decodeURIComponent(slug));
+          setLessonId(new URLSearchParams(window.location.search).get("lesson"));
+          setActiveSection("classroom");
+          return;
+        }
+      }
 
       setPostId(null);
       setEventId(null);
+      setCourseId(null);
       if (validSections.includes(path)) {
         setActiveSection(path);
       } else if (path === "") {
@@ -213,6 +235,28 @@ export default function App() {
 
             {activeSection === "events" && (
               <EventList onOpen={(id) => handleNavigation(`events/${id}`)} />
+            )}
+
+            {activeSection === "courses" && (
+              <CourseList onOpen={(id) => handleNavigation(`courses/${id}`)} />
+            )}
+
+            {activeSection === "course-detail" && courseId && (
+              <CourseDetail
+                id={courseId}
+                onBack={() => handleNavigation("courses")}
+                onLearn={(id, lesson) => handleNavigation(lesson ? `learn/${id}?lesson=${lesson}` : `learn/${id}`)}
+                onLogin={() => handleNavigation("auth")}
+              />
+            )}
+
+            {activeSection === "classroom" && courseId && (
+              <Classroom
+                courseId={courseId}
+                initialLessonId={lessonId}
+                onBack={() => handleNavigation(`courses/${courseId}`)}
+                onLogin={() => handleNavigation("auth")}
+              />
             )}
 
             {activeSection === "blog-post" && postId && (
