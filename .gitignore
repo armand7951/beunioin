@@ -7,3 +7,6 @@ coverage/
 .env*
 !.env.example
 .vercel
+
+# WP/Tutor 匯出，含學員個資，不進 git
+docs/imports/
