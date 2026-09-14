@@ -1,4 +1,102 @@
 {
+  "redirects": [
+    {
+      "source": "/:path*",
+      "has": [
+        {
+          "type": "host",
+          "value": "www.beunion.tw"
+        }
+      ],
+      "destination": "https://beunion.tw/:path*",
+      "permanent": true
+    },
+    {
+      "source": "/hedgehog-knowledge",
+      "destination": "/blog/legacy-hedgehog-guide",
+      "permanent": true
+    },
+    {
+      "source": "/2025國際同伴動物日",
+      "destination": "/blog/legacy-companion-animal-day-2025",
+      "permanent": true
+    },
+    {
+      "source": "/timebank",
+      "destination": "/blog/news-5",
+      "permanent": true
+    },
+    {
+      "source": "/jinrui-flood-control-park-neihu",
+      "destination": "/blog/news-6",
+      "permanent": true
+    },
+    {
+      "source": "/news",
+      "destination": "/blog",
+      "permanent": true
+    },
+    {
+      "source": "/knowledge-platform",
+      "destination": "/blog",
+      "permanent": true
+    },
+    {
+      "source": "/issue-column",
+      "destination": "/blog",
+      "permanent": true
+    },
+    {
+      "source": "/organization",
+      "destination": "/",
+      "permanent": true
+    },
+    {
+      "source": "/about",
+      "destination": "/",
+      "permanent": true
+    },
+    {
+      "source": "/about-us",
+      "destination": "/",
+      "permanent": true
+    },
+    {
+      "source": "/contact",
+      "destination": "/shield",
+      "permanent": true
+    },
+    {
+      "source": "/course",
+      "destination": "/",
+      "permanent": true
+    },
+    {
+      "source": "/cart",
+      "destination": "/",
+      "permanent": true
+    },
+    {
+      "source": "/checkout",
+      "destination": "/",
+      "permanent": true
+    },
+    {
+      "source": "/dashboard",
+      "destination": "/",
+      "permanent": true
+    },
+    {
+      "source": "/instructor-registration",
+      "destination": "/",
+      "permanent": true
+    },
+    {
+      "source": "/student-registration",
+      "destination": "/",
+      "permanent": true
+    }
+  ],
   "rewrites": [
     {
       "source": "/welfare",
