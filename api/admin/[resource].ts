@@ -1,5 +1,7 @@
 import admins from "../_lib/admin/admins.js";
 import audit from "../_lib/admin/audit.js";
+import courses from "../_lib/admin/courses.js";
+import enrollments from "../_lib/admin/enrollments.js";
 import events from "../_lib/admin/events.js";
 import me from "../_lib/admin/me.js";
 import posts from "../_lib/admin/posts.js";
@@ -36,6 +38,8 @@ type Handler = (req: ApiRequest, res: ApiResponse) => Promise<unknown>;
 const ROUTES: Record<string, Handler> = {
   admins,
   audit,
+  courses,
+  enrollments,
   events,
   me,
   posts,
