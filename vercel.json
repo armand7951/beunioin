@@ -1,6 +1,17 @@
 {
   "redirects": [
     {
+      "source": "/",
+      "has": [
+        {
+          "type": "host",
+          "value": "www.beunion.tw"
+        }
+      ],
+      "destination": "https://beunion.tw/",
+      "permanent": true
+    },
+    {
       "source": "/:path*",
       "has": [
         {
