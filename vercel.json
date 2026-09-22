@@ -125,6 +125,10 @@
   ],
   "rewrites": [
     {
+      "source": "/sitemap.xml",
+      "destination": "/api/sitemap"
+    },
+    {
       "source": "/welfare",
       "destination": "/index.html"
     },

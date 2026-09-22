@@ -17,8 +17,9 @@ import upload from "../_lib/admin/upload.js";
 //   1. 輔助模組移到 api/_lib/ —— 底線開頭的目錄 Vercel 不會當成 function。
 //   2. 後台七個端點併成這一支動態路由，實作留在 _lib/admin/ 各自的檔案裡。
 //
-// 結果是 6 支 function（這支 + contact + events×2 + posts×2），還有成長空間。
-// 新增後台端點時請加在下面這張表，不要在 api/admin/ 底下開新檔案。
+// 結果是 8 支 function（這支 + contact + courses + events×2 + posts×2 +
+// sitemap），還有成長空間。新增後台端點時請加在下面這張表，不要在 api/admin/
+// 底下開新檔案。
 
 interface ApiRequest {
   method?: string;

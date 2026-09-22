@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import { useAuth } from "../contexts/AuthContext";
 import { getEventStatus } from "../lib/eventStatus";
+import { usePageMeta } from "../lib/pageMeta";
 import type { EventItem } from "./EventCalendar";
 
 const STATUS_LABELS: Record<string, string> = {
@@ -67,6 +68,17 @@ export default function EventDetail({ id, onBack }: { id: string; onBack: () => 
     setRegEmail(user?.email ?? "");
     setRegPhone(profile?.phone ?? "");
   }, [profile, user]);
+
+  // hook 要無條件呼叫：資料還沒載入完成（或找不到這場活動）時傳 null，
+  // 讓 index.html 的預設 meta 撐著；載入完成才換成這場活動自己的標題。
+  usePageMeta(
+    event
+      ? {
+          title: event.title,
+          description: event.description.replace(/\s+/g, " ").trim().slice(0, 160),
+        }
+      : null,
+  );
 
   const submitRegistration = async (formEvent: React.FormEvent) => {
     formEvent.preventDefault();

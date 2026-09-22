@@ -93,9 +93,10 @@ test("parseYouTubeId handles every common url shape and rejects junk", () => {
   }
 });
 
-// Vercel Hobby 上限 12 支 function；課程功能加上去後是 7 支。
+// Vercel Hobby 上限 12 支 function；課程功能加上去後是 7 支，這次加 api/sitemap.ts
+// 變 8 支（見 tests/seo-analytics.test.mjs 的對應測試）。
 test("the function count stays within the Hobby limit", () => {
   const n = Number(execSync("find api -name '*.ts' -not -path '*/_lib/*' | wc -l").toString().trim());
-  assert.equal(n, 7);
+  assert.equal(n, 8);
   assert.ok(n <= 12);
 });

@@ -1,0 +1,9 @@
+User-agent: *
+Allow: /
+Disallow: /admin
+Disallow: /member
+Disallow: /auth
+Disallow: /reset-password
+Disallow: /learn/
+Disallow: /api/
+Sitemap: https://beunion.tw/sitemap.xml

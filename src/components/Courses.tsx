@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import { useAuth } from "../contexts/AuthContext";
 import { CARD_MEDIA } from "../lib/cardLayout";
+import { usePageMeta } from "../lib/pageMeta";
 
 // 前台三頁：/courses 總覽、/courses/<id> 課程頁、/learn/<id> 教室。
 //
@@ -180,6 +181,17 @@ export function CourseDetail({
       cancelled = true;
     };
   }, [id, session?.access_token]);
+
+  // hook 要無條件呼叫：課程還沒載入完成（或找不到）時傳 null，載入完成才換
+  // 成這門課程自己的標題與簡介。
+  usePageMeta(
+    course
+      ? {
+          title: course.title,
+          description: course.description.replace(/\s+/g, " ").trim().slice(0, 160),
+        }
+      : null,
+  );
 
   if (loading) return <Spinner />;
 
@@ -375,6 +387,12 @@ export function Classroom({
   }, [current, token]);
 
   const currentLesson = useMemo(() => course?.lessons.find((l) => l.id === current) ?? null, [course, current]);
+
+  // 教室頁一律 noindex：內容只給已報名或試看的人看，收錄了對搜尋也沒有意義。
+  usePageMeta({
+    title: course ? `${course.title}｜線上教室` : "線上教室",
+    noindex: true,
+  });
 
   const markComplete = async () => {
     if (!current || !token) return;
