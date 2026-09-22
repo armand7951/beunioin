@@ -87,12 +87,23 @@ export default async function handler(req: ApiRequest, res: ApiResponse) {
       return res.status(400).json({ error: "文章狀態不正確。" });
     }
 
+    // 編輯器現在能放表格、圖說、提示框，一篇長文的 HTML 幾十 KB 是正常的；超過幾百 KB
+    // 幾乎只剩一種可能：有人把 base64 圖片整段貼進內文。這種文章存進去前台每次開都要
+    // 拉整包，RPC 也沒有上限會照單全收，在這裡先擋。json 通常比 html 大一倍左右，門檻也放寬一倍。
+    const contentHtml = str(body.contentHtml);
+    if (
+      contentHtml.length > 500_000 ||
+      JSON.stringify(body.contentJson ?? null).length > 1_000_000
+    ) {
+      return res.status(413).json({ error: "文章內容過大，請縮小圖片或拆成多篇。" });
+    }
+
     const { data, error } = await supabase.rpc("admin_upsert_post", {
       p_admin_user_id: user.id,
       p_id: str(body.id).trim(),
       p_title: str(body.title).trim(),
       p_excerpt: str(body.excerpt),
-      p_content_html: str(body.contentHtml),
+      p_content_html: contentHtml,
       p_content_json: body.contentJson ?? null,
       p_category: str(body.category),
       p_cover_image_url: str(body.coverImageUrl),
