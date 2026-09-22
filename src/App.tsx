@@ -20,6 +20,44 @@ import ResetPassword from "./components/ResetPassword";
 import Footer from "./components/Footer";
 import { Shield, Sparkles, Heart } from "lucide-react";
 import { motion } from "motion/react";
+import { usePageMeta, type PageMeta } from "./lib/pageMeta";
+
+// 固定頁面（不帶參數、資料是即時算好的）的 SEO meta。detail 頁
+// （blog-post／event-detail／course-detail／classroom）不在這裡——它們的
+// title／description 要等資料載入完成才知道，各自在自己的元件裡呼叫
+// usePageMeta（見 EventDetail.tsx、Courses.tsx）。
+const SECTION_META: Record<string, PageMeta> = {
+  home: {
+    title: "台灣環境生態護育產業工會 (BeUnion) - 守護環境保育與志工權益的暖心後盾",
+    description:
+      "守護環境保育者的安全後盾！專為動物動保、植物與森林保育、環境與永續工程工作者與志工打造的權益守護平台。提供法規保障、職安通報、活動報名與工會文章。",
+  },
+  welfare: {
+    title: "台灣環產 | 志工夥伴福利總覽",
+    description: "凝聚力量 ‧ 共享成長 ‧ 全面關懷",
+  },
+  shield: {
+    title: "我們保護為萬物挺身而出的人",
+    description:
+      "工會自立案以來，全力維護動植物護育、生態保育、山林復育與環境教育等一線夥伴與志工的尊嚴、勞權與生命安全。",
+  },
+  blog: {
+    title: "工會文章",
+    description: "保育知識、權益倡議與志工故事，都在這裡。",
+  },
+  events: {
+    title: "工會活動",
+    description: "守護行動、教育訓練與座談會，歡迎報名參加。",
+  },
+  courses: {
+    title: "線上課程",
+    description: "動保、生態與勞動權益的培訓課程，報名後隨時上線學習。",
+  },
+  admin: { title: "管理後台", noindex: true },
+  auth: { title: "會員登入", noindex: true },
+  member: { title: "會員中心", noindex: true },
+  "reset-password": { title: "重設密碼", noindex: true },
+};
 
 export default function App() {
   const [activeSection, setActiveSection] = useState("home");
@@ -97,6 +135,10 @@ export default function App() {
       window.removeEventListener("pushstate_change", handleLocationChange);
     };
   }, []);
+
+  // 固定頁面在這裡統一設 meta；detail 頁（activeSection 不在 SECTION_META
+  // 裡）傳 null，交給該頁自己的元件在資料就緒後呼叫 usePageMeta。
+  usePageMeta(SECTION_META[activeSection] ?? null);
 
   const handleNavigation = (sectionId: string) => {
     const path = sectionId === "home" ? "/" : `/${sectionId}`;
@@ -260,7 +302,7 @@ export default function App() {
             )}
 
             {activeSection === "blog-post" && postId && (
-              <BlogPost id={postId} onBack={() => handleNavigation("blog")} />
+              <BlogPost id={postId} onBack={() => handleNavigation("blog")} onNavigate={handleNavigation} />
             )}
 
             {activeSection === "event-detail" && eventId && (

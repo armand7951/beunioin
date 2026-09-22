@@ -1,0 +1,384 @@
+/* 文章內文的長文排版。前台 /blog/<id> 的 .article-body 與後台編輯器的
+   .ProseMirror.article-body 共用這一份，寫的人在後台看到什麼、讀者在前台就看到什麼。
+
+   全部規則掛在 .article-body 底下，而且刻意不放進 @layer：Tailwind v4 的 preflight
+   把 h1-h6 的字級／粗細、ul/ol 的項目符號、blockquote 的邊距通通歸零，這些規則
+   必須贏過它 —— 不在 layer 裡的一般規則永遠贏過 layer 內的，不必比 specificity。
+   色票沿用品牌：墨色 #1e293b、amber 強調、emerald 連結；帶 fallback 是怕 Tailwind
+   只輸出「有被用到」的主題變數時漏掉。 */
+
+.article-body {
+  font-size: 1.0625rem;
+  line-height: 1.9;
+  color: #334155;
+  /* 長網址或無空白的英數字串不能把版面撐出手機螢幕 */
+  overflow-wrap: break-word;
+}
+
+.article-body > :first-child {
+  margin-top: 0;
+}
+
+.article-body > :last-child {
+  margin-bottom: 0;
+}
+
+/* ---- 段落與行內 ---- */
+
+.article-body p {
+  margin: 0 0 1.25em;
+}
+
+.article-body a {
+  color: #047857;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  text-decoration-thickness: 2px;
+  font-weight: 700;
+  overflow-wrap: anywhere;
+}
+
+.article-body a:hover {
+  color: #065f46;
+}
+
+.article-body strong {
+  color: #1e293b;
+  font-weight: 800;
+}
+
+.article-body code {
+  font-family: var(--font-mono, ui-monospace, SFMono-Regular, monospace);
+  font-size: 0.9em;
+  background: #f1f5f9;
+  border-radius: 0.375rem;
+  padding: 0.1em 0.4em;
+}
+
+.article-body pre {
+  margin: 1.5em 0;
+  padding: 1em 1.2em;
+  overflow-x: auto;
+  border-radius: 0.875rem;
+  background: #1e293b;
+  color: #f8fafc;
+  font-size: 0.9rem;
+  line-height: 1.7;
+}
+
+.article-body pre code {
+  background: none;
+  padding: 0;
+  font-size: inherit;
+}
+
+/* ---- 標題 ----
+   scroll-margin-top 對應 sticky Header（桌機約 92px）：目錄跳過去時標題才不會被蓋住。
+   參考站是無框大字，這裡改用品牌慣用的墨線，h3 用 amber 粗線區分層級。 */
+
+.article-body h2,
+.article-body h3,
+.article-body h4 {
+  color: #1e293b;
+  line-height: 1.35;
+  scroll-margin-top: 7rem;
+}
+
+.article-body h2 {
+  font-size: 1.75rem;
+  font-weight: 900;
+  margin: 2.5em 0 0.9em;
+  padding-bottom: 0.35em;
+  border-bottom: 3px solid #1e293b;
+}
+
+.article-body h3 {
+  font-size: 1.35rem;
+  font-weight: 900;
+  margin: 2em 0 0.7em;
+  padding-left: 0.6em;
+  border-left: 5px solid var(--color-amber-400, #fbbf24);
+}
+
+.article-body h4 {
+  font-size: 1.15rem;
+  font-weight: 800;
+  margin: 1.6em 0 0.6em;
+}
+
+/* 標題緊接著標題（h2 下面直接 h3）時不要疊兩段大留白 */
+.article-body h2 + h3,
+.article-body h3 + h4 {
+  margin-top: 1em;
+}
+
+/* ---- 清單 ---- */
+
+.article-body ul,
+.article-body ol {
+  margin: 0 0 1.25em;
+  padding-left: 1.5em;
+}
+
+.article-body ul {
+  list-style: disc;
+}
+
+.article-body ol {
+  list-style: decimal;
+}
+
+.article-body ul ul {
+  list-style: circle;
+}
+
+.article-body ol ol {
+  list-style: lower-alpha;
+}
+
+.article-body li {
+  margin: 0.35em 0;
+  padding-left: 0.2em;
+}
+
+.article-body li::marker {
+  color: #d97706;
+  font-weight: 800;
+}
+
+/* TipTap 把每個 li 的內容包一層 p；那個 p 不能再帶段落間距 */
+.article-body li > p {
+  margin: 0;
+}
+
+.article-body li > ul,
+.article-body li > ol {
+  margin: 0.35em 0 0;
+}
+
+/* 舊站匯入的文章把每一個項目各包成一個 ul（172 個 ul 對 178 個 li），
+   相鄰的清單視覺上併成一份，項目間距才跟同一個 ul 裡的 li 一樣 */
+.article-body ul + ul,
+.article-body ol + ol {
+  margin-top: -0.9em;
+}
+
+/* ---- 引言、分隔線 ---- */
+
+.article-body blockquote {
+  margin: 1.5em 0;
+  padding: 0.75em 1em;
+  border-left: 4px solid var(--color-amber-400, #fbbf24);
+  border-radius: 0.75rem;
+  background: #fffbeb;
+  color: #475569;
+}
+
+.article-body blockquote > :last-child {
+  margin-bottom: 0;
+}
+
+.article-body hr {
+  border: 0;
+  border-top: 3px dashed #cbd5e1;
+  margin: 2.5em 0;
+}
+
+/* ---- 表格 ----
+   .table-scroll 是前台 prepareArticle 包上去的；.tableWrapper 是 TipTap 表格擴充在
+   編輯器裡自己包的。手機上表格比螢幕寬就在這層左右捲，不撐破頁面。 */
+
+.article-body .table-scroll,
+.article-body .tableWrapper {
+  overflow-x: auto;
+  margin: 1.5em 0;
+  -webkit-overflow-scrolling: touch;
+}
+
+.article-body table {
+  width: 100%;
+  border-collapse: collapse;
+  border: 2px solid #1e293b;
+  font-size: 0.95rem;
+  line-height: 1.6;
+  margin: 0;
+}
+
+/* 沒被包住的表格不設最小寬，否則會直接把頁面撐出橫向捲軸 */
+.article-body .table-scroll > table,
+.article-body .tableWrapper > table {
+  min-width: 480px;
+}
+
+.article-body th,
+.article-body td {
+  position: relative;
+  border: 1px solid #cbd5e1;
+  padding: 0.6em 0.8em;
+  vertical-align: top;
+  text-align: left;
+}
+
+/* TipTap 的表格沒有 thead，表頭就是 th，所以直接對 th 上色 */
+.article-body th {
+  background: var(--color-amber-100, #fef3c7);
+  color: #1e293b;
+  font-weight: 800;
+}
+
+.article-body tr:nth-child(even) td {
+  background: #f8fafc;
+}
+
+.article-body td p,
+.article-body th p {
+  margin: 0;
+}
+
+/* 編輯器裡框選儲存格的高亮（prosemirror-tables 加的 .selectedCell）。
+   用 ::after 疊一層，儲存格本身的背景與內容不動。 */
+.article-body .selectedCell::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: rgba(251, 191, 36, 0.25);
+  pointer-events: none;
+}
+
+/* ---- 圖片與圖說 ---- */
+
+.article-body img {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  margin: 1.5em auto;
+  border: 3px solid #1e293b;
+  border-radius: 1rem;
+}
+
+.article-body figure {
+  margin: 2em 0;
+  text-align: center;
+}
+
+.article-body figure img {
+  margin: 0 auto;
+}
+
+.article-body figcaption {
+  margin-top: 0.6em;
+  font-size: 0.875rem;
+  line-height: 1.6;
+  color: #64748b;
+}
+
+/* 前台：沒填圖說就不要留一個空行 */
+.article-body:not(.ProseMirror) figcaption:empty {
+  display: none;
+}
+
+/* 編輯器：空圖說顯示提示，讓人知道這格可以打字、也可以留白。
+   ProseMirror 的空 textblock 裡會塞一個 <br class="ProseMirror-trailingBreak">，
+   所以 :empty 在編輯器裡多半不成立，連 .is-empty（Placeholder 擴充）與
+   「只剩 trailingBreak」一起判斷。 */
+.ProseMirror.article-body figcaption {
+  position: relative;
+}
+
+.ProseMirror.article-body figcaption:is(:empty, .is-empty, :has(> .ProseMirror-trailingBreak:only-child))::before {
+  content: "輸入圖說（可留空）";
+  position: absolute;
+  inset: 0 0 auto;
+  color: #94a3b8;
+  pointer-events: none;
+}
+
+/* ---- 提示框 ----
+   後台編輯器輸出 <div data-callout="info|warning|tip"><p>…</p></div>；
+   標籤用 ::before 畫，不進內容，所以改文案不必動資料庫。 */
+
+.article-body [data-callout] {
+  margin: 1.5em 0;
+  padding: 1em 1.1em;
+  border: 2px solid;
+  border-radius: 0.875rem;
+}
+
+.article-body [data-callout]::before {
+  display: block;
+  margin-bottom: 0.35em;
+  font-size: 0.8rem;
+  font-weight: 900;
+  letter-spacing: 0.05em;
+}
+
+.article-body [data-callout] > :last-child {
+  margin-bottom: 0;
+}
+
+.article-body [data-callout="info"] {
+  border-color: #93c5fd;
+  background: #eff6ff;
+}
+
+.article-body [data-callout="info"]::before {
+  content: "ℹ️ 資訊";
+  color: #1d4ed8;
+}
+
+.article-body [data-callout="warning"] {
+  border-color: #fcd34d;
+  background: #fffbeb;
+}
+
+.article-body [data-callout="warning"]::before {
+  content: "⚠️ 注意";
+  color: #b45309;
+}
+
+.article-body [data-callout="tip"] {
+  border-color: #6ee7b7;
+  background: #ecfdf5;
+}
+
+.article-body [data-callout="tip"]::before {
+  content: "💡 小提醒";
+  color: #047857;
+}
+
+/* ---- 編輯器專用 ----
+   TipTap Placeholder 擴充把提示文字放在 data-placeholder，用 ::before 顯示。
+   float + height 0 是官方寫法：不佔版面，游標才會停在行首而不是提示字尾。 */
+
+.article-body p.is-editor-empty:first-child::before {
+  content: attr(data-placeholder);
+  float: left;
+  height: 0;
+  color: #94a3b8;
+  pointer-events: none;
+}
+
+/* ---- 手機 ---- */
+
+@media (max-width: 640px) {
+  .article-body {
+    font-size: 1rem;
+    line-height: 1.85;
+  }
+
+  .article-body h2 {
+    font-size: 1.5rem;
+  }
+
+  .article-body h3 {
+    font-size: 1.2rem;
+  }
+
+  .article-body h4 {
+    font-size: 1.05rem;
+  }
+
+  .article-body pre {
+    padding: 0.8em 1em;
+  }
+}
