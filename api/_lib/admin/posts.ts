@@ -98,9 +98,21 @@ export default async function handler(req: ApiRequest, res: ApiResponse) {
       return res.status(413).json({ error: "文章內容過大，請縮小圖片或拆成多篇。" });
     }
 
+    // 代碼就是網址的最後一段。有人從舊站複製網址時會連結尾的斜線一起貼進來，
+    // 存成 `xxx/` 之後前台那一頁永遠是 404（查不到 id），sitemap 也會輸出 `xxx%2F`。
+    // 這裡把斜線、空白與網址裡不該出現的字元一律剃掉，壞資料進不了 DB。
+    const id = str(body.id)
+      .trim()
+      .replace(/[/\\\s]+/g, "-")
+      .replace(/[?#&%]+/g, "")
+      .replace(/^-+|-+$/g, "");
+    if (!id) {
+      return res.status(400).json({ error: "文章代碼不能空白。" });
+    }
+
     const { data, error } = await supabase.rpc("admin_upsert_post", {
       p_admin_user_id: user.id,
-      p_id: str(body.id).trim(),
+      p_id: id,
       p_title: str(body.title).trim(),
       p_excerpt: str(body.excerpt),
       p_content_html: contentHtml,
