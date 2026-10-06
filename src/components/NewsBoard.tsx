@@ -128,7 +128,7 @@ export default function NewsBoard({ onOpenPost, onSeeAll }: NewsBoardProps) {
               最新共生消息 ‧ 夥伴動態
             </h2>
             <p className="text-sm sm:text-base font-bold text-[#1e293b]/60 mt-2">
-              即時追蹤台灣環境共生工會的第一手活動紀錄、重要公告與深度知識分享。
+              即時追蹤台灣環境生態護育產業工會的第一手活動紀錄、重要公告與深度知識分享。
             </p>
           </div>
         </div>
