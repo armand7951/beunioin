@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Shield, BookOpen, Scale, Users, Coins, Mail, Phone, Check, ArrowRight, Sparkles, Send, LoaderCircle } from "lucide-react";
+import { Shield, BookOpen, Scale, Coins, Mail, Phone, Check, ArrowRight, Sparkles, Send, LoaderCircle } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 
 const EMPTY_CONTACT_FORM = {
@@ -11,7 +11,7 @@ const EMPTY_CONTACT_FORM = {
 };
 
 export default function ShieldHub() {
-  const [activeTab, setActiveTab] = useState<"purpose" | "tasks" | "team" | "membership" | "contact">("purpose");
+  const [activeTab, setActiveTab] = useState<"purpose" | "tasks" | "membership" | "contact">("purpose");
   const [contactForm, setContactForm] = useState(EMPTY_CONTACT_FORM);
   const [contactStatus, setContactStatus] = useState<"idle" | "submitting" | "success" | "error">("idle");
   const [contactFeedback, setContactFeedback] = useState("");
@@ -136,7 +136,6 @@ export default function ShieldHub() {
             {[
               { id: "purpose", label: "🌟 工會宗旨 & 立案", icon: Scale },
               { id: "tasks", label: "📋 法定十大任務", icon: BookOpen },
-              { id: "team", label: "💼 理監事與創始團隊", icon: Users },
               { id: "membership", label: "💳 快速入會與福利", icon: Coins },
               { id: "contact", label: "📞 聯絡我們", icon: Mail }
             ].map((tab) => {
@@ -271,72 +270,6 @@ export default function ShieldHub() {
                       </div>
                     </div>
                   ))}
-                </div>
-              </motion.div>
-            )}
-
-            {activeTab === "team" && (
-              <motion.div
-                key="team"
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -10 }}
-                transition={{ duration: 0.2 }}
-                className="space-y-6"
-              >
-                <div>
-                  <h4 className="text-2xl md:text-3xl font-black text-[#1e293b] flex items-center gap-2">
-                    <span>理監事與倡議團隊</span>
-                    <span className="text-xs font-black bg-rose-100 text-rose-800 px-2.5 py-1 rounded-lg border-2 border-rose-600 shadow-[1px_1px_0px_0px_#be123c]">第一屆會期</span>
-                  </h4>
-                  <p className="text-sm font-bold text-[#1e293b]/60 mt-1">由具備第一線實務經驗的專家及法律顧問領軍，決心推動生態界環境革命！</p>
-                </div>
-
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 pt-2">
-                  {leaders.map((leader, index) => (
-                    <div key={index} className="p-6 md:p-8 bg-white border-3 border-[#1e293b] rounded-[2rem] bubbly-shadow-md flex flex-col justify-between hover:-translate-y-0.5 transition-transform text-left">
-                      <div>
-                        <div className="flex items-center gap-3 mb-4">
-                          <div className="w-12 h-12 rounded-full border-2 border-[#1e293b] bg-amber-100 flex items-center justify-center text-xl font-black text-[#1e293b]">
-                            {index === 0 ? "👩‍💼" : "👥"}
-                          </div>
-                          <div>
-                            <div className="text-xs font-black text-amber-600 tracking-wider uppercase">{leader.role}</div>
-                            <h5 className="text-xl font-black text-[#1e293b]">{leader.name}</h5>
-                          </div>
-                        </div>
-                        <p className="text-sm font-bold text-[#1e293b]/80 leading-relaxed">
-                          {leader.desc}
-                        </p>
-                      </div>
-
-                      <div className="flex flex-wrap items-center gap-1.5 mt-6 pt-4 border-t-2 border-[#1e293b]/10">
-                        {leader.tags.map((tag, tIdx) => (
-                          <span key={tIdx} className="px-2.5 py-1 bg-[#1e293b]/5 rounded-lg text-xs font-black text-[#1e293b]">
-                            #{tag}
-                          </span>
-                        ))}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-
-                <div className="p-6 bg-amber-50 rounded-3xl border-2 border-[#1e293b] flex flex-col md:flex-row items-center justify-between gap-4 text-left">
-                  <div>
-                    <h5 className="font-black text-base text-[#1e293b] mb-1">📢 工會理監事常態發聲與監督</h5>
-                    <p className="text-xs font-bold text-[#1e293b]/70">
-                      我們常年參與全台各大棲地開發案、保育專案勞檢、淨灘安檢與職安申訴，為沒有固定雇主的工作人員撐腰。若你所屬的保育單位、政府標案包商存在不合規的安全盲區，請務必主動向工會反映！
-                    </p>
-                  </div>
-                  <button
-                    onClick={() => {
-                      const element = document.getElementById("report-section");
-                      if (element) element.scrollIntoView({ behavior: "smooth" });
-                    }}
-                    className="px-5 py-2 bg-amber-400 hover:bg-amber-500 text-[#1e293b] font-black rounded-xl border-2 border-[#1e293b] shadow-[2px_2px_0px_0px_#1e293b] text-xs shrink-0 cursor-pointer"
-                  >
-                    反映勞資/職安爭議 🚨
-                  </button>
                 </div>
               </motion.div>
             )}
