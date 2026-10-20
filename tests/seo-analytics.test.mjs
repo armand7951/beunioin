@@ -26,13 +26,12 @@ test("vercel.json rewrites /sitemap.xml to the sitemap function first", () => {
   assert.equal(first.destination, "/api/sitemap");
 });
 
-// Vercel Hobby 方案上限 12 支 function；api/sitemap.ts 上線後全站是 8 支。
-test("the function count stays within the Hobby limit after adding the sitemap route", () => {
+// Vercel Hobby 方案上限 12 支 function；只守上限，不鎖死確切數量。
+test("the function count stays within the Hobby limit", () => {
   const n = Number(
     execSync("find api -name '*.ts' -not -path '*/_lib/*' | wc -l").toString().trim(),
   );
-  assert.equal(n, 8);
-  assert.ok(n < 12);
+  assert.ok(n <= 12, `Vercel Hobby 只准 12 支 function，現在有 ${n} 支`);
 });
 
 // GA 的 measurement ID 只能來自環境變數，程式碼裡不可以寫死任何 G- 開頭的代碼

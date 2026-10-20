@@ -159,7 +159,7 @@
     },
     {
       "source": "/blog/:slug",
-      "destination": "/index.html"
+      "destination": "/api/page?type=blog&slug=:slug"
     },
     {
       "source": "/events",
@@ -167,7 +167,7 @@
     },
     {
       "source": "/events/:slug",
-      "destination": "/index.html"
+      "destination": "/api/page?type=events&slug=:slug"
     },
     {
       "source": "/courses",
@@ -175,7 +175,7 @@
     },
     {
       "source": "/courses/:slug",
-      "destination": "/index.html"
+      "destination": "/api/page?type=courses&slug=:slug"
     },
     {
       "source": "/learn/:slug",
